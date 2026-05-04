@@ -1,0 +1,29 @@
+{
+  "name": "devtrack",
+  "version": "1.0.0",
+  "description": "Um repositório criado para uso no aprendizado de node.",
+  "homepage": "https://github.com/diego-rng/devtrack#readme",
+  "bugs": {
+    "url": "https://github.com/diego-rng/devtrack/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/diego-rng/devtrack.git"
+  },
+  "license": "MIT",
+  "author": "",
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  },
+  "bin": {
+    "devtrack":"./cli.js"
+  },
+  "main": "cli.js",
+  "scripts": {
+    "start": "node cli.js",
+    "dev": "node --watch cli.js",
+    "test": "node --test cli.js",
+    "lint": "eslint"
+  }
+}

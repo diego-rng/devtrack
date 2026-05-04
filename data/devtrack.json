@@ -1,0 +1,34 @@
+{
+  "version": "1.0",
+  "projects": [],
+  "tasks": [
+    {
+      "id": "2e98546728545hjm2igmtu8934560",
+      "titulo": "teste",
+      "descricao": "teste",
+      "status": "em_progresso",
+      "prioridade": "media",
+      "projeto": "teste",
+      "tags": [
+        "1",
+        "2"
+      ],
+      "atualizadaEm": "2026-05-04T19:36:56.550Z"
+    },
+    {
+      "titulo": "teste",
+      "descricao": "testeaaaaaaa",
+      "status": "em_progresso",
+      "prioridade": "alta",
+      "projeto": "f gvwretr",
+      "tags": [
+        "a",
+        "a2"
+      ],
+      "id": "c8cb83af-8238-4e45-ba5c-f6f7eb124510",
+      "criadaEm": "2026-05-04T19:39:10.499Z",
+      "atualizadaEm": "2026-05-04T19:39:10.499Z"
+    }
+  ],
+  "log": []
+}
