@@ -5,7 +5,7 @@ import { fileURLToPath } from "url";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const DB_PATH = path.join(
+export const DB_PATH = path.join(
   __dirname,
   path.normalize("../../data/devtrack.json"),
 );
@@ -34,11 +34,13 @@ export async function adicionarTask(task) {
   const content = JSON.parse(await readFile(DB_PATH, "utf-8"));
 
   if (!["pendente", "em_progresso", "concluida"].includes(task.status)) {
-    return "ERROR: Invalid status";
+    console.log("ERROR: Invalid status")
+    return;
   }
 
   if (!["alta", "media", "baixa"].includes(task.prioridade)) {
-    return "ERROR: Invalid priority";
+    console.log("ERROR: Invalid priority")
+    return;
   }
 
   task.id = newID;
@@ -50,7 +52,7 @@ export async function adicionarTask(task) {
     console.log("Task adicionada com sucesso!"),
   );
 
-  return ;
+  return;
 }
 
 export async function atualizarTask(id, campos) {
