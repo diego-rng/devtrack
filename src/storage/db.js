@@ -17,13 +17,16 @@ export async function lerDB() {
       '{ "version": "1.0", "projects": [], "tasks": [], "log": [] }',
     );
   }
-  console.log(JSON.parse(await readFile(DB_PATH, "utf-8")))
+  console.log(JSON.parse(await readFile(DB_PATH, "utf-8")));
   return;
 }
 
 export async function salvarDB(dados) {
   const temp = JSON.parse(await readFile(DB_PATH, "utf-8"));
-  await writeFile(DB_PATH, dados);
+  await writeFile(DB_PATH, dados)
+  .then(
+    console.log("Base de dados salva com sucesso!")
+  )
 }
 
 export async function adicionarTask(task) {
@@ -43,9 +46,11 @@ export async function adicionarTask(task) {
   task.atualizadaEm = task.criadaEm;
   content.tasks.push(task);
 
-  await writeFile(DB_PATH, JSON.stringify(content, null, 2));
+  await writeFile(DB_PATH, JSON.stringify(content, null, 2)).then(
+    console.log("Task adicionada com sucesso!"),
+  );
 
-  return task;
+  return ;
 }
 
 export async function atualizarTask(id, campos) {
@@ -94,7 +99,9 @@ export async function atualizarTask(id, campos) {
 
   content.tasks[identifier].atualizadaEm = new Date();
 
-  await writeFile(DB_PATH, JSON.stringify(content, null, 2));
+  await writeFile(DB_PATH, JSON.stringify(content, null, 2)).then(
+    console.log("Task atualizada com sucesso!")
+  );
   return;
 }
 
@@ -105,6 +112,10 @@ export async function removerTask(id) {
     content.tasks.filter((task) => task.id != id);
     await writeFile(DB_PATH, JSON.stringify(content, null, 2));
     console.log("Task removed!");
+    return
+  } else {
+    console.log("Task doesn't exist.")
+    return
   }
 }
 
@@ -116,29 +127,51 @@ export async function listarTasks(filtro) {
     });
   } else {
     if (filtro.titulo != undefined) {
-        content.tasks = content.tasks.filter(a => a.titulo === filtro.titulo)
+      content.tasks = content.tasks.filter((a) => a.titulo === filtro.titulo);
     }
     if (filtro.descricao != undefined) {
-        content.tasks = content.tasks.filter(a => a.descricao === filtro.descricao)
+      content.tasks = content.tasks.filter(
+        (a) => a.descricao === filtro.descricao,
+      );
     }
     if (filtro.status != undefined) {
-        content.tasks = content.tasks.filter(a => a.status === filtro.status)
+      content.tasks = content.tasks.filter((a) => a.status === filtro.status);
     }
     if (filtro.prioridade != undefined) {
-        content.tasks = content.tasks.filter(a => a.prioridade === filtro.prioridade)
+      content.tasks = content.tasks.filter(
+        (a) => a.prioridade === filtro.prioridade,
+      );
     }
     if (filtro.projeto != undefined) {
-        content.tasks = content.tasks.filter(a => a.projeto === filtro.projeto)
+      content.tasks = content.tasks.filter((a) => a.projeto === filtro.projeto);
     }
     if (filtro.tags != undefined) {
-        content.tasks = content.tasks.filter(a => !a.tags.includes(filtro.tags) )
+      content.tasks = content.tasks.filter(
+        (a) => !a.tags.includes(filtro.tags),
+      );
     }
-    console.log (content.tasks)
+    console.log(content.tasks);
   }
 }
 
-const filter = {
-  prioridade: "baixa",
-};
+export async function fazerBackup() {
+  const newBackup = await readFile(DB_PATH, "utf-8");
+  const currentDate = new Date();
+  try {
+    await writeFile(
+      path.normalize(
+        "./exports/devtrack-" +
+          currentDate.toLocaleString("en-CA", {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+          }),
+      ) + ".json",
+      newBackup,
+    );
 
-lerDB()
+    console.log("Backed up successfully!");
+  } catch (err) {
+    console.error(err);
+  }
+}
