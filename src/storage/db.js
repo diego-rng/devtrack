@@ -51,7 +51,6 @@ export async function adicionarTask(task) {
   await writeFile(DB_PATH, JSON.stringify(content, null, 2)).then(
     console.log("Task adicionada com sucesso!"),
   );
-
   return;
 }
 
@@ -177,3 +176,4 @@ export async function fazerBackup() {
     console.error(err);
   }
 }
+

@@ -1,9 +1,11 @@
+import {Transform, Readable} from 'node:stream'
 import { pipeline } from 'node:stream/promises';
 import * as db from '../storage/db.js';
 import readline from 'node:readline/promises';
 import fs from 'node:fs/promises';
+import path from 'node:path'
+import { createWriteStream, createReadStream } from 'node:fs';
 
-const rl = readline.createInterface({ input, output });
 
 const DB_PATH = path.normalize('./data/devtrack.json');
 
@@ -19,7 +21,7 @@ const readableStream = new ReadableStream({
   }
 });
 
-const writableStream = new WritableStream({
+const writableStream = createWriteStream({
   start(controller) {
     console.log('Writable Stream started!');
   },
@@ -44,7 +46,7 @@ const writableStream = new WritableStream({
 
 const readStream = new ReadableStream(new readableStream());
 
-const writer = new WritableStream(new writableStream());
+const writer = new writableStream();
 
 async function transformCSV() {
   const content = await fetch(DB_PATH);
@@ -59,4 +61,10 @@ async function transformCSV() {
   }
 }
 
-export async function exportarCSV(filtro, caminhoSaida) {}
+export async function exportarCSV(filtro, caminhoSaida) {
+    const result = transformCSV()
+    console.log(result)
+}
+
+
+exportarCSV()
