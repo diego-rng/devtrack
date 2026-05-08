@@ -10,28 +10,43 @@ console.log('DevTrack v1.0');
 console.log('Node:', process.version);
 console.log('Plataforma:', process.platform);
 
-const rl = readline.createInterface({ input, output });
+const rl = readline.createInterface({ input, output, terminal: true });
 
 const DB_PATH = path.normalize('./data/devtrack.json');
 
 rl.setPrompt(
   '--------MENU--------\n1. Adicionar\n2. Listar\n3. Atualizar status\n4. Sair\n> ',
 );
+
 await rl.prompt();
 
 rl.on('line', async (line) => {
-  if (line == '4') rl.close().then(process.exit(0));
+  if (line == '4') (rl.close(), process.exit(0));
   else if (line == '1') {
-    addPrompt(line);
+    await addPrompt(line);
+    setTimeout(() => {
+      rl.prompt()
+    }, 500)
   } else if (line == '2') {
     const done = (await parseJSON(DB_PATH)).tasks;
-    const fullDone = done.map( (task) => ({
-      id: slice(task.id, 7),
-      titulo: slice(task.titulo, 29),
+    const fullDone = done.map((task) => ({
+      id: task.id.slice(0, 8),
+      titulo: task.titulo.slice(0, 29),
       status: task.status,
-      prioridade: task.prioridade
-  }))
+      prioridade: task.prioridade,
+    }));
     console.table(fullDone);
+    rl.prompt()
+  } else if (line == '3') {
+    process.stdout.write('\x1Bc')
+    const id = await rl.question('ID da Task: ')
+    console.log('\n')
+    const newStatus = await rl.question('Novo Status ("concluida", "em_progresso" ou "pendente"): ')
+    console.log('\n')
+    await updateStatus(id, newStatus)
+    setTimeout(()=> { 
+      rl.prompt();
+    }, 10)
   }
 });
 
@@ -65,7 +80,7 @@ async function addPrompt(line) {
   }
 
   const task = {
-    title: title,
+    titulo: title,
     prioridade: prioFixed,
     tags: tagsFixed,
     status: 'pendente',
@@ -73,14 +88,28 @@ async function addPrompt(line) {
 
   setTimeout(() => {
     db.adicionarTask(task);
-  }, 50);
+  }, 0);
   return;
 }
 
-process.on('SIGINT', () => {
-  console.log('Encerrando...');
+async function updateStatus(id, newStatus) {
+  const updatePrompted = {
+    status: newStatus
+  }
 
-  setTimeout(() => {
-    process.exit(0);
-  }, 100);
-});
+  db.atualizarTask(id, updatePrompted)
+}
+
+if (!process.stdout.isTTY) {
+  const tasks = await parseJSON(DB_PATH);
+  const complete = tasks.tasks;
+  console.log(complete);
+  console.log('Process not running in a TTY context. Exiting...');
+  process.exit(0);
+}
+
+rl.on('SIGINT', () => {
+  console.log('\nEncerrando...')
+  rl.close();
+    process.exit(0)
+})

@@ -6,14 +6,14 @@
       "id": "2e98546728545hjm2igmtu8934560",
       "titulo": "teste",
       "descricao": "teste",
-      "status": "em_progresso",
+      "status": "concluida",
       "prioridade": "media",
       "projeto": "teste",
       "tags": [
         "1",
         "2"
       ],
-      "atualizadaEm": "2026-05-04T19:36:56.550Z"
+      "atualizadaEm": "2026-05-08T17:51:47.283Z"
     },
     {
       "titulo": "teste",
@@ -41,7 +41,7 @@
       "atualizadaEm": "2026-05-06T17:31:03.829Z"
     },
     {
-      "title": "dfaferr",
+      "titulo": "dfaferr",
       "prioridade": "media",
       "tags": [],
       "status": "pendente",
@@ -50,13 +50,49 @@
       "atualizadaEm": "2026-05-07T17:08:45.708Z"
     },
     {
-      "title": "frsgre",
+      "titulo": "frsgre",
       "prioridade": "media",
       "tags": [],
       "status": "pendente",
       "id": "7509b87d-b9bb-4f39-8095-cf2f2b071ac0",
       "criadaEm": "2026-05-07T17:19:51.687Z",
       "atualizadaEm": "2026-05-07T17:19:51.687Z"
+    },
+    {
+      "titulo": "grdsgf",
+      "prioridade": "media",
+      "tags": [],
+      "status": "pendente",
+      "id": "fb078d69-d4d5-423b-83bd-2d0fa6e39f83",
+      "criadaEm": "2026-05-08T16:19:16.800Z",
+      "atualizadaEm": "2026-05-08T16:19:16.800Z"
+    },
+    {
+      "titulo": "23432",
+      "prioridade": "media",
+      "tags": [],
+      "status": "pendente",
+      "id": "a897fdc9-23e3-419a-b6d7-616c4fd2b737",
+      "criadaEm": "2026-05-08T16:20:16.620Z",
+      "atualizadaEm": "2026-05-08T16:20:16.620Z"
+    },
+    {
+      "titulo": "fdsfgedsgsdfgr",
+      "prioridade": "media",
+      "tags": [],
+      "status": "pendente",
+      "id": "6c74019d-46e1-4b6e-98b5-55862b4214d3",
+      "criadaEm": "2026-05-08T16:26:36.697Z",
+      "atualizadaEm": "2026-05-08T16:26:36.697Z"
+    },
+    {
+      "titulo": "fgsgr",
+      "prioridade": "media",
+      "tags": [],
+      "status": "pendente",
+      "id": "6bbaf3b7-cc1e-4ca3-b515-3b6e19898f38",
+      "criadaEm": "2026-05-08T16:26:52.837Z",
+      "atualizadaEm": "2026-05-08T16:26:52.837Z"
     }
   ],
   "log": []
