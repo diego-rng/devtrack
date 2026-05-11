@@ -1,65 +1,79 @@
-import { readFile, writeFile, rename } from "fs/promises";
-import { existsSync } from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
+import { readFile, writeFile, rename, rm } from 'fs/promises';
+import { existsSync } from 'fs';
+import { v4 as uuid } from 'uuid';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 export const DB_PATH = path.join(
   __dirname,
-  path.normalize("../../data/devtrack.json"),
+  path.normalize('../../data/devtrack.json'),
 );
 
 export async function lerDB() {
-  if (!existsSync(DB_PATH, "utf-8")) {
+  if (!existsSync(DB_PATH)) {
     await writeFile(
       DB_PATH,
       '{ "version": "1.0", "projects": [], "tasks": [], "log": [] }',
     );
   }
-  console.log(JSON.parse(await readFile(DB_PATH, "utf-8")));
-  return;
+  return JSON.parse(await readFile(DB_PATH, 'utf-8'));
 }
 
 export async function salvarDB(dados) {
-  const temp = JSON.parse(await readFile(DB_PATH, "utf-8"));
-  await writeFile(DB_PATH, dados)
-  .then(
-    console.log("Base de dados salva com sucesso!")
-  )
+  const temp = JSON.stringify(dados);
+  await writeFile(DB_PATH, temp);
 }
 
 export async function adicionarTask(task) {
-  const newID = crypto.randomUUID();
-  const content = JSON.parse(await readFile(DB_PATH, "utf-8"));
+  const newID = uuid();
+  const content = JSON.parse(await readFile(DB_PATH, 'utf-8'));
 
-  if (!["pendente", "em_progresso", "concluida"].includes(task.status)) {
-    console.log("ERROR: Invalid status")
+  if (
+    task.status &&
+    !['pendente', 'em_progresso', 'concluida'].includes(task.status)
+  ) {
+    console.log('ERROR: Invalid status');
     return;
   }
 
-  if (!["alta", "media", "baixa"].includes(task.prioridade)) {
-    console.log("ERROR: Invalid priority")
+  if (
+    task.prioridade &&
+    !['alta', 'media', 'baixa'].includes(task.prioridade)
+  ) {
+    console.log('ERROR: Invalid priority');
     return;
   }
 
   task.id = newID;
+  if (!task.status) {
+    task.status = 'pendente';
+  }
+  if (!task.projeto) {
+    task.projeto = '';
+  }
+  if (!task.prioridade) {
+    task.prioridade = 'media';
+  }
+  content.tasks.push(task);
+  if (!task.tags) {
+    task.tags = [];
+  }
   task.criadaEm = new Date();
   task.atualizadaEm = task.criadaEm;
-  content.tasks.push(task);
 
   await writeFile(DB_PATH, JSON.stringify(content, null, 2)).then(
-    console.log("Task adicionada com sucesso!"),
+    console.log('Task adicionada com sucesso!'),
   );
-  return;
+  return task;
 }
 
 export async function atualizarTask(id, campos) {
-  const content = JSON.parse(await readFile(DB_PATH, "utf-8"));
+  const content = JSON.parse(await readFile(DB_PATH, 'utf-8'));
 
   if (!content.tasks.some((task) => task.id === id)) {
-    console.log("No task matches the ID provided.");
-    return;
+    throw new Error('No task matches the ID provided.');
   }
 
   const identifier = content.tasks.findIndex((cont) => cont.id === id);
@@ -73,19 +87,19 @@ export async function atualizarTask(id, campos) {
   }
 
   if (campos.status != undefined) {
-    if (["pendente", "em_progresso", "concluida"].includes(campos.status)) {
+    if (['pendente', 'em_progresso', 'concluida'].includes(campos.status)) {
       content.tasks[identifier].status = campos.status;
     } else {
-      console.log("Incorrect status");
+      console.log('Incorrect status');
       return;
     }
   }
 
   if (campos.prioridade != undefined) {
-    if (["alta", "media", "baixa"].includes(campos.prioridade)) {
+    if (['alta', 'media', 'baixa'].includes(campos.prioridade)) {
       content.tasks[identifier].prioridade = campos.prioridade;
     } else {
-      console.log("Incorrect priority");
+      console.log('Incorrect priority');
       return;
     }
   }
@@ -101,31 +115,29 @@ export async function atualizarTask(id, campos) {
   content.tasks[identifier].atualizadaEm = new Date();
 
   await writeFile(DB_PATH, JSON.stringify(content, null, 2)).then(
-    console.log("Task atualizada com sucesso!")
+    console.log('Task atualizada com sucesso!'),
   );
   return;
 }
 
 export async function removerTask(id) {
-  const content = JSON.parse(await readFile(DB_PATH, "utf-8"));
+  const content = JSON.parse(await readFile(DB_PATH, 'utf-8'));
 
   if (content.tasks.some((task) => task.id === id)) {
-    content.tasks.filter((task) => task.id != id);
+    const result = content.tasks.filter((task) => task.id != id);
+    content.tasks = result
     await writeFile(DB_PATH, JSON.stringify(content, null, 2));
     console.log("Task removed!");
     return
   } else {
-    console.log("Task doesn't exist.")
-    return
+    throw new Error("Task doesn't exist.");
   }
 }
 
 export async function listarTasks(filtro) {
-  const content = JSON.parse(await readFile(DB_PATH, "utf-8"));
+  const content = JSON.parse(await readFile(DB_PATH, 'utf-8'));
   if (filtro == undefined) {
-    content.tasks.forEach((element) => {
-      console.log(element);
-    });
+    return content.tasks;
   } else {
     if (filtro.titulo != undefined) {
       content.tasks = content.tasks.filter((a) => a.titulo === filtro.titulo);
@@ -151,29 +163,39 @@ export async function listarTasks(filtro) {
         (a) => !a.tags.includes(filtro.tags),
       );
     }
+    return content.tasks;
     console.log(content.tasks);
   }
 }
 
 export async function fazerBackup() {
-  const newBackup = await readFile(DB_PATH, "utf-8");
+  const newBackup = await readFile(DB_PATH, 'utf-8');
   const currentDate = new Date();
   try {
     await writeFile(
       path.normalize(
-        "./exports/devtrack-" +
-          currentDate.toLocaleString("en-CA", {
-            year: "numeric",
-            month: "2-digit",
-            day: "2-digit",
+        './exports/devtrack-' +
+          currentDate.toLocaleString('en-CA', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
           }),
-      ) + ".json",
+      ) + '.json',
       newBackup,
     );
+    return (
+      path.normalize(
+        './exports/devtrack-' +
+          currentDate.toLocaleString('en-CA', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+          }),
+      ) + '.json'
+    );
 
-    console.log("Backed up successfully!");
+    console.log('Backed up successfully!');
   } catch (err) {
     console.error(err);
   }
 }
-

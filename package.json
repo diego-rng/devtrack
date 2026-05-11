@@ -17,7 +17,7 @@
     "node": ">=18"
   },
   "bin": {
-    "devtrack":"./cli.js"
+    "devtrack": "./cli.js"
   },
   "main": "cli.js",
   "scripts": {
@@ -25,5 +25,8 @@
     "dev": "node --watch cli.js",
     "test": "node --test cli.js",
     "lint": "eslint"
+  },
+  "dependencies": {
+    "uuid": "^14.0.0"
   }
 }

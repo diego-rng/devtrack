@@ -1,11 +1,13 @@
 #!/usr/bin/env node
 // cli.js - Entry point do DevTrack
+import path from 'path';
+import fs from 'node:fs/promises';
+import { parse } from 'node:path';
 import readline from 'node:readline/promises';
 import { stdin as input, stdout as output } from 'node:process';
+
 import * as db from './src/storage/db.js';
-import fs from 'node:fs/promises';
-import path from 'path';
-import { parse } from 'node:path';
+import * as imp from './src/services/export.js'
 console.log('DevTrack v1.0');
 console.log('Node:', process.version);
 console.log('Plataforma:', process.platform);
@@ -15,38 +17,58 @@ const rl = readline.createInterface({ input, output, terminal: true });
 const DB_PATH = path.normalize('./data/devtrack.json');
 
 rl.setPrompt(
-  '--------MENU--------\n1. Adicionar\n2. Listar\n3. Atualizar status\n4. Sair\n> ',
+  '--------MENU--------\n1. Adicionar\n2. Listar\n3. Atualizar status\n4. Sair\n5. Exportar CSV\n6. Exportar log comprimido\n> ',
 );
 
 await rl.prompt();
 
 rl.on('line', async (line) => {
-  if (line == '4') (rl.close(), process.exit(0));
-  else if (line == '1') {
-    await addPrompt(line);
-    setTimeout(() => {
-      rl.prompt()
-    }, 500)
-  } else if (line == '2') {
-    const done = (await parseJSON(DB_PATH)).tasks;
-    const fullDone = done.map((task) => ({
-      id: task.id.slice(0, 8),
-      titulo: task.titulo.slice(0, 29),
-      status: task.status,
-      prioridade: task.prioridade,
-    }));
-    console.table(fullDone);
-    rl.prompt()
-  } else if (line == '3') {
-    process.stdout.write('\x1Bc')
-    const id = await rl.question('ID da Task: ')
-    console.log('\n')
-    const newStatus = await rl.question('Novo Status ("concluida", "em_progresso" ou "pendente"): ')
-    console.log('\n')
-    await updateStatus(id, newStatus)
-    setTimeout(()=> { 
+  switch (line) {
+    case '1': {
+      await addPrompt(line);
+      setTimeout(() => {
+        rl.prompt();
+      }, 500);
+    }
+    case '2': {
+      const done = (await parseJSON(DB_PATH)).tasks;
+      const fullDone = done.map((task) => ({
+        id: task.id.slice(0, 8),
+        titulo: task.titulo.slice(0, 29),
+        status: task.status,
+        prioridade: task.prioridade,
+      }));
+      console.table(fullDone);
       rl.prompt();
-    }, 10)
+    }
+    case '3': {
+      process.stdout.write('\x1Bc');
+      const id = await rl.question('ID da Task: ');
+      console.log('\n');
+      const newStatus = await rl.question(
+        'Novo Status ("concluida", "em_progresso" ou "pendente"): ',
+      );
+      console.log('\n');
+      await updateStatus(id, newStatus);
+      setTimeout(() => {
+        rl.prompt();
+      }, 10);
+    }
+    case '4':
+      (rl.close(), process.exit(0));
+    case '5': {
+      const filtro = await rl.question('Filtro: ')
+      console.log('\n')
+      const caminhoSaida = await rl.question('Caminho de saída: ')
+      await imp.exportarCSV(filtro, caminhoSaida)
+    }
+    case '6': {
+      
+    }
+    default: {
+      console.log('Invalid input')
+      rl.prompt()
+    }
   }
 });
 
@@ -94,10 +116,10 @@ async function addPrompt(line) {
 
 async function updateStatus(id, newStatus) {
   const updatePrompted = {
-    status: newStatus
-  }
+    status: newStatus,
+  };
 
-  db.atualizarTask(id, updatePrompted)
+  db.atualizarTask(id, updatePrompted);
 }
 
 if (!process.stdout.isTTY) {
@@ -109,7 +131,7 @@ if (!process.stdout.isTTY) {
 }
 
 rl.on('SIGINT', () => {
-  console.log('\nEncerrando...')
+  console.log('\nEncerrando...');
   rl.close();
-    process.exit(0)
-})
+  process.exit(0);
+});
