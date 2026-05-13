@@ -29,7 +29,8 @@ export async function salvarDB(dados) {
 export async function adicionarTask(task) {
   const newID = uuid();
   const content = JSON.parse(await readFile(DB_PATH, 'utf-8'));
-
+  
+  task.id = newID;
   if (
     task.status &&
     !['pendente', 'em_progresso', 'concluida'].includes(task.status)
@@ -46,7 +47,6 @@ export async function adicionarTask(task) {
     return;
   }
 
-  task.id = newID;
   if (!task.status) {
     task.status = 'pendente';
   }

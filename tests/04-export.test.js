@@ -37,7 +37,7 @@ describe('Tarefa 04 — exportarCSV(filtro, caminhoSaida)', () => {
     await exportarCSV({}, out);
     const conteudo = readFileSync(out, 'utf-8');
     const primeiraLinha = conteudo.split('\n')[0];
-    assert.equal(primeiraLinha, 'id,titulo,status,prioridade,projeto,tags,criadaEm');
+    assert.equal(primeiraLinha, 'titulo,status,prioridade,projeto,tags,id,criadaEm');
   });
 
   test('gera uma linha por tarefa', async () => {

@@ -7,7 +7,7 @@ import readline from 'node:readline/promises';
 import { stdin as input, stdout as output } from 'node:process';
 
 import * as db from './src/storage/db.js';
-import * as imp from './src/services/export.js'
+import * as imp from './src/services/export.js';
 console.log('DevTrack v1.0');
 console.log('Node:', process.version);
 console.log('Plataforma:', process.platform);
@@ -54,20 +54,25 @@ rl.on('line', async (line) => {
         rl.prompt();
       }, 10);
     }
-    case '4':
-      (rl.close(), process.exit(0));
+    case '4': {
+      rl.close();
+      process.exit(0);
+    }
     case '5': {
-      const filtro = await rl.question('Filtro: ')
-      console.log('\n')
-      const caminhoSaida = await rl.question('Caminho de saída: ')
-      await imp.exportarCSV(filtro, caminhoSaida)
+      let filtro = await rl.question('Filtro (estruture como Objeto JS): ');
+      if (filtro != '') filtro = await JSON.parse(filtro);
+      const caminhoSaida = await rl.question('Caminho de saída: ');
+      await imp.exportarCSV(filtro, caminhoSaida);
+      rl.prompt();
     }
     case '6': {
-      
+      const caminhoSaida = await rl.question('Caminho de saída: ');
+      await imp.exportarLogComprimido(caminhoSaida);
+      rl.prompt();
     }
     default: {
-      console.log('Invalid input')
-      rl.prompt()
+      console.log('Invalid input');
+      rl.prompt();
     }
   }
 });
