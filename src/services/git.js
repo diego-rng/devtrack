@@ -41,10 +41,14 @@ export async function getStatusArquivos() {
     const res = [];
     for (let i = 0; i < lines; i++) {
       if (!sep[i]) break;
-      const status = sep[i].slice(0, 2);
+      let status = sep[i].slice(0, 2);
+      if (status.at(0) == '') {
+        status = status.slice(0)
+      } else {status = status.slice(1)}
       const file = sep[i].slice(3);
       res.push({ status: status, arquivo: file });
     }
+    console.log(res)
     return res;
   } catch (err) {
     console.error(err);
