@@ -164,7 +164,6 @@ export async function listarTasks(filtro) {
       );
     }
     return content.tasks;
-    console.log(content.tasks);
   }
 }
 

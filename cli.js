@@ -7,6 +7,7 @@ import readline from 'node:readline/promises';
 import { stdin as input, stdout as output } from 'node:process';
 
 import { buscarIssues } from './src/services/github.js'
+import * as git from './src/services/git.js'
 import * as db from './src/storage/db.js';
 import * as imp from './src/services/export.js';
 console.log('DevTrack v1.0');
@@ -18,7 +19,7 @@ const rl = readline.createInterface({ input, output, terminal: true });
 const DB_PATH = path.normalize('./data/devtrack.json');
 
 rl.setPrompt(
-  '--------MENU--------\n1. Adicionar\n2. Listar\n3. Atualizar status\n4. Sair\n5. Exportar CSV\n6. Exportar log comprimido\n7. Importar issues do GitHub\n> ',
+  '--------MENU--------\n1. Adicionar\n2. Listar\n3. Atualizar status\n4. Sair\n5. Exportar CSV\n6. Exportar log comprimido\n7. Importar issues do GitHub\n8. Vincular tarefa à branch atual\n> ',
 );
 
 await rl.prompt();
@@ -71,6 +72,14 @@ rl.on('line', async (line) => {
       const pages = await rl.question('Página? (deixe em branco para página 1.): ')
       const response = await buscarIssues('diego-rng/devtrack', process.env.GITHUB_TOKEN, (pages === '' ? null : pages));
       console.log(await response);
+      rl.prompt();
+    }
+    case '8' : {
+      const id = await rl.question('ID da Tarefa: ');
+      const response = await git.getBranch();
+      const tarefa = await JSON.parse(await db.listarTasks({id:id}))
+      tarefa.branch = response
+      await db.atualizarTask(id, tarefa);
       rl.prompt();
     }
     default: {
