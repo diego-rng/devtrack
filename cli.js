@@ -6,6 +6,7 @@ import { parse } from 'node:path';
 import readline from 'node:readline/promises';
 import { stdin as input, stdout as output } from 'node:process';
 
+import { buscarIssues } from './src/services/github.js'
 import * as db from './src/storage/db.js';
 import * as imp from './src/services/export.js';
 console.log('DevTrack v1.0');
@@ -17,7 +18,7 @@ const rl = readline.createInterface({ input, output, terminal: true });
 const DB_PATH = path.normalize('./data/devtrack.json');
 
 rl.setPrompt(
-  '--------MENU--------\n1. Adicionar\n2. Listar\n3. Atualizar status\n4. Sair\n5. Exportar CSV\n6. Exportar log comprimido\n> ',
+  '--------MENU--------\n1. Adicionar\n2. Listar\n3. Atualizar status\n4. Sair\n5. Exportar CSV\n6. Exportar log comprimido\n7. Importar issues do GitHub\n> ',
 );
 
 await rl.prompt();
@@ -26,9 +27,7 @@ rl.on('line', async (line) => {
   switch (line) {
     case '1': {
       await addPrompt(line);
-      setTimeout(() => {
         rl.prompt();
-      }, 500);
     }
     case '2': {
       const done = (await parseJSON(DB_PATH)).tasks;
@@ -50,9 +49,7 @@ rl.on('line', async (line) => {
       );
       console.log('\n');
       await updateStatus(id, newStatus);
-      setTimeout(() => {
         rl.prompt();
-      }, 10);
     }
     case '4': {
       rl.close();
@@ -68,6 +65,12 @@ rl.on('line', async (line) => {
     case '6': {
       const caminhoSaida = await rl.question('Caminho de saída: ');
       await imp.exportarLogComprimido(caminhoSaida);
+      rl.prompt();
+    }
+    case '7': {
+      const pages = await rl.question('Página? (deixe em branco para página 1.): ')
+      const response = await buscarIssues('diego-rng/devtrack', process.env.GITHUB_TOKEN, (pages === '' ? null : pages));
+      console.log(await response);
       rl.prompt();
     }
     default: {

@@ -9,7 +9,10 @@
       "status": "concluida",
       "prioridade": "media",
       "projeto": "teste",
-      "tags": ["1", "2"],
+      "tags": [
+        "1",
+        "2"
+      ],
       "criadaEm": "2026-05-08T17:51:47.283Z",
       "atualizadaEm": "2026-05-08T17:51:47.283Z"
     },
@@ -20,7 +23,10 @@
       "status": "em_progresso",
       "prioridade": "alta",
       "projeto": "f gvwretr",
-      "tags": ["a", "a2"],
+      "tags": [
+        "a",
+        "a2"
+      ],
       "criadaEm": "2026-05-04T19:39:10.499Z",
       "atualizadaEm": "2026-05-04T19:39:10.499Z"
     },
@@ -111,7 +117,539 @@
       "tags": [],
       "criadaEm": "2026-05-08T18:36:38.243Z",
       "atualizadaEm": "2026-05-08T18:36:38.243Z"
+    },
+    {
+      "titulo": "`net.Socket({ fd })` can abort the Node.js process when iterating invalid file descriptors",
+      "tags": [],
+      "descricao": "### Version\n\n24.13.1\n\n### Platform\n\n```text\nLinux KContainer 6.12.86+deb13-amd64 #1 SMP PREEMPT_DYNAMIC Debian 6.12.86-1 (2026-05-08) x86_64 x86_64 x86_64 GNU/Linux\n```\n\n### Subsystem\n\nnet\n\n### What s",
+      "status": "pendente",
+      "prioridade": "media",
+      "id": "f1dc3682-e5c2-412f-a696-53ef1e661f09",
+      "projeto": "",
+      "criadaEm": "2026-05-14T18:06:43.903Z",
+      "atualizadaEm": "2026-05-14T18:06:43.903Z"
+    },
+    {
+      "titulo": "test: unskip snapshot reproducibility test",
+      "tags": [
+        "test",
+        "needs-ci"
+      ],
+      "descricao": "See if the v8 14.6 upgrade has fixed it.\r\n\r\nOn a side note, debian will require reproducible builds in their packages https://lists.debian.org/debian-devel-announce/2026/05/msg00001.html\r\n\r\n<!--\r\nBefo",
+      "status": "pendente",
+      "prioridade": "media",
+      "id": "6d8ad79b-5ce1-4fcb-be47-1b5888ae0100",
+      "projeto": "",
+      "criadaEm": "2026-05-14T18:06:43.912Z",
+      "atualizadaEm": "2026-05-14T18:06:43.912Z"
+    },
+    {
+      "titulo": "quic: Documentation on async write on QuicStream",
+      "tags": [],
+      "descricao": "The current documentation says:\n\n> Writer — access [stream.writer](https://github.com/nodejs/node/blob/main/doc/api/quic.md#streamwriter) to push data incrementally. The writer exposes synchronous met",
+      "status": "pendente",
+      "prioridade": "media",
+      "id": "52b6ecd7-362c-4efb-9b89-2279eb3dce44",
+      "projeto": "",
+      "criadaEm": "2026-05-14T18:06:43.917Z",
+      "atualizadaEm": "2026-05-14T18:06:43.917Z"
+    },
+    {
+      "titulo": "quic: Bug in flow control for bidistreams and sessions?",
+      "tags": [],
+      "descricao": "I wrote a test in order to trigger stalls caused by session flow control. (So exhaustion of the flow control window of the session).\nI am not sure if I achieved it, but it stalls. So it might be somet",
+      "status": "pendente",
+      "prioridade": "media",
+      "id": "8d1c2bde-6282-4c5d-99cf-026d46bc6b86",
+      "projeto": "",
+      "criadaEm": "2026-05-14T18:06:43.921Z",
+      "atualizadaEm": "2026-05-14T18:06:43.921Z"
+    },
+    {
+      "titulo": "quic: Current implementation results in tiny Uint8Arrays in streaming mode",
+      "tags": [],
+      "descricao": "@jasnell \nHere is a test (I just wanted to trigger some problem I have seen when I create my PR (I could not provoke any problem, well I have seen some stalls, but they are gone, maybe I did something",
+      "status": "pendente",
+      "prioridade": "media",
+      "id": "c41278bf-f94d-4d99-9195-1ac3580d10b2",
+      "projeto": "",
+      "criadaEm": "2026-05-14T18:06:43.925Z",
+      "atualizadaEm": "2026-05-14T18:06:43.925Z"
+    },
+    {
+      "titulo": "stream/iter: per-consumer AbortSignal is ignored by broadcast.push() and share.pull() fast path",
+      "tags": [
+        "stream"
+      ],
+      "descricao": "### Version\n\n26.1.0\n\n### Platform\n\n```text\nmacOS 26.5.0\n```\n\n### Subsystem\n\nstream\n\n### What steps will reproduce the bug?\n\n```js\nimport { setTimeout as delay } from \"node:timers/promises\";\nimport { b",
+      "status": "pendente",
+      "prioridade": "media",
+      "id": "f5f284aa-3eca-4b6f-b2ec-e890897c126b",
+      "projeto": "",
+      "criadaEm": "2026-05-14T18:06:43.928Z",
+      "atualizadaEm": "2026-05-14T18:06:43.928Z"
+    },
+    {
+      "titulo": "crypto: surface OpenSSL errors in X509Certificate.toLegacyObject",
+      "tags": [
+        "crypto",
+        "c++",
+        "needs-ci",
+        "dependencies"
+      ],
+      "descricao": "`X509Certificate.toLegacyObject()` silently omits the `subjectaltname`\nand `infoAccess` properties when an internal OpenSSL call fails (e.g.\n`BIO_new` allocation failure), making \"extension absent\"\nin",
+      "status": "pendente",
+      "prioridade": "media",
+      "id": "b367ab0f-8616-418f-8705-e6e7a37bf5ff",
+      "projeto": "",
+      "criadaEm": "2026-05-14T18:06:43.932Z",
+      "atualizadaEm": "2026-05-14T18:06:43.932Z"
+    },
+    {
+      "titulo": "stream: validate broadcast writer writev chunks",
+      "tags": [
+        "stream",
+        "author ready",
+        "needs-ci"
+      ],
+      "descricao": "Fixes BroadcastWriter `writev()` and `writevSync()` input validation so\r\nnon-array `chunks` values throw `ERR_INVALID_ARG_TYPE` before reaching\r\n`convertChunks()`.\r\n\r\nPreviously, `writer.writev('abc')",
+      "status": "pendente",
+      "prioridade": "media",
+      "id": "a783a994-12b8-4e42-b881-d245e3be3927",
+      "projeto": "",
+      "criadaEm": "2026-05-14T18:06:43.937Z",
+      "atualizadaEm": "2026-05-14T18:06:43.937Z"
+    },
+    {
+      "titulo": "stream/iter: BroadcastWriter writev methods accept non-sequence chunks",
+      "tags": [
+        "stream"
+      ],
+      "descricao": "### Version\n\n26.1.0\n\n### Platform\n\n```text\nmacOS 26.5.0\n```\n\n### Subsystem\n\nstream\n\n### What steps will reproduce the bug?\n\n```js\nimport assert from \"node:assert/strict\";\nimport { broadcast, text } fr",
+      "status": "pendente",
+      "prioridade": "media",
+      "id": "a31b929f-8211-4b97-8e50-4da511bf25da",
+      "projeto": "",
+      "criadaEm": "2026-05-14T18:06:43.941Z",
+      "atualizadaEm": "2026-05-14T18:06:43.941Z"
+    },
+    {
+      "titulo": "doc: update `Http2Server.close` & `Http2SecureServer.close`",
+      "tags": [
+        "doc",
+        "http2"
+      ],
+      "descricao": "https://github.com/nodejs/node/blob/main/lib/internal/http2/core.js#L3505\r\n\r\n```js\r\n  close() {\r\n    ReflectApply(NETServer.prototype.close, this, arguments);\r\n    closeAllSessions(this);\r\n  }\r\n```\r\n\r",
+      "status": "pendente",
+      "prioridade": "media",
+      "id": "fa8e8a47-89a1-4eac-9370-a80d39b1adf6",
+      "projeto": "",
+      "criadaEm": "2026-05-14T18:06:43.945Z",
+      "atualizadaEm": "2026-05-14T18:06:43.945Z"
+    },
+    {
+      "titulo": "stream: avoid retrying accepted pipeTo writes",
+      "tags": [
+        "stream",
+        "author ready",
+        "needs-ci"
+      ],
+      "descricao": "`pipeTo()` treated `writeSync()` / `writevSync()` returning `false` as a\r\nfailed sync write and retried the same chunk(s) through the async path.\r\n\r\nThat is incorrect for `PushWriter` with `backpressu",
+      "status": "pendente",
+      "prioridade": "media",
+      "id": "6447e7bd-9349-4089-8257-c8d5313cee92",
+      "projeto": "",
+      "criadaEm": "2026-05-14T18:06:43.949Z",
+      "atualizadaEm": "2026-05-14T18:06:43.949Z"
+    },
+    {
+      "titulo": "stream/iter: pipeTo retries accepted PushWriter writes under block backpressure",
+      "tags": [
+        "stream"
+      ],
+      "descricao": "### Version\n\n26.1.0\n\n### Platform\n\n```text\nmacOS 26.5.0\n```\n\n### Subsystem\n\nstream\n\n### What steps will reproduce the bug?\n\n```js\nimport { pipeTo, push, text } from \"node:stream/iter\";\n\nconst enc = ne",
+      "status": "pendente",
+      "prioridade": "media",
+      "id": "89f2d08b-1702-429c-b094-b8105534a6f1",
+      "projeto": "",
+      "criadaEm": "2026-05-14T18:06:43.952Z",
+      "atualizadaEm": "2026-05-14T18:06:43.952Z"
+    },
+    {
+      "titulo": "stream: uncork fromWritable writev on chunk error",
+      "tags": [
+        "stream",
+        "author ready",
+        "needs-ci"
+      ],
+      "descricao": "Fixes `fromWritable().writev()` leaving the wrapped classic `Writable`\r\ncorked when conversion of a later chunk throws.\r\n\r\nPreviously, `writev()` called `writable.cork()` before converting all\r\nchunks",
+      "status": "pendente",
+      "prioridade": "media",
+      "id": "f005461b-3d10-4e19-9c8a-9644cb30657f",
+      "projeto": "",
+      "criadaEm": "2026-05-14T18:06:43.955Z",
+      "atualizadaEm": "2026-05-14T18:06:43.955Z"
+    },
+    {
+      "titulo": "stream/iter: fromWritable().writev() leaves Writable corked when chunk validation throws",
+      "tags": [
+        "stream"
+      ],
+      "descricao": "### Version\n\n26.1.0\n\n### Platform\n\n```text\nmacOS 26.5.0\n```\n\n### Subsystem\n\nstream\n\n### What steps will reproduce the bug?\n\n```js\nimport { strictEqual, throws } from \"node:assert\";\nimport { Writable }",
+      "status": "pendente",
+      "prioridade": "media",
+      "id": "085a010e-725f-4409-a739-8839ad6c88af",
+      "projeto": "",
+      "criadaEm": "2026-05-14T18:06:43.959Z",
+      "atualizadaEm": "2026-05-14T18:06:43.959Z"
+    },
+    {
+      "titulo": "test: add more test cases for pathToFileURL",
+      "tags": [
+        "test",
+        "needs-ci"
+      ],
+      "descricao": "Just to make sure we won't introduce any regression anytime further (based on H1 reports we received).",
+      "status": "pendente",
+      "prioridade": "media",
+      "id": "d96d5850-21ef-41e1-8029-c2308a5c1da4",
+      "projeto": "",
+      "criadaEm": "2026-05-14T18:06:43.963Z",
+      "atualizadaEm": "2026-05-14T18:06:43.963Z"
+    },
+    {
+      "titulo": "doc: fix CHANGELOG",
+      "tags": [
+        "meta",
+        "author ready",
+        "commit-queue"
+      ],
+      "descricao": "Remove Node.js 23 column.\r\nMark Node.js 20 as End-of-Life and remove the corresponding column.\r\n\r\nFixes: https://github.com/nodejs/node/issues/63291\r\n\r\n<!--\r\nBefore submitting a pull request, please r",
+      "status": "pendente",
+      "prioridade": "media",
+      "id": "b9a028af-e6d2-47fe-928a-a45339be312a",
+      "projeto": "",
+      "criadaEm": "2026-05-14T18:06:43.967Z",
+      "atualizadaEm": "2026-05-14T18:06:43.967Z"
+    },
+    {
+      "titulo": "Changelog table is broken",
+      "tags": [],
+      "descricao": "### Version\n\n_No response_\n\n### Platform\n\n```text\n\n```\n\n### Subsystem\n\n_No response_\n\n### What steps will reproduce the bug?\n\ntake a look https://github.com/nodejs/node/blob/main/CHANGELOG.md#nodejs-c",
+      "status": "pendente",
+      "prioridade": "media",
+      "id": "09924be3-628b-4f90-83ef-3e57f3f811b9",
+      "projeto": "",
+      "criadaEm": "2026-05-14T18:06:43.971Z",
+      "atualizadaEm": "2026-05-14T18:06:43.971Z"
+    },
+    {
+      "titulo": "Node 26 garbage collector not working for arrayBuffers?",
+      "tags": [],
+      "descricao": "### Version\n\n26.1.0\n\n### Platform\n\n```text\nAlpine linux docker\n```\n\n### Subsystem\n\n_No response_\n\n### What steps will reproduce the bug?\n\nSeems Node 25 vs 26 regression and garbage collector not worki",
+      "status": "pendente",
+      "prioridade": "media",
+      "id": "28bd0607-fd4d-4823-ae49-fe04600e0aaa",
+      "projeto": "",
+      "criadaEm": "2026-05-14T18:06:43.976Z",
+      "atualizadaEm": "2026-05-14T18:06:43.976Z"
+    },
+    {
+      "titulo": "sqlite: check null returns from sqlite value functions",
+      "tags": [
+        "c++",
+        "needs-ci",
+        "sqlite"
+      ],
+      "descricao": "sqlite3_column_text() can return nullptr on failure which was not handled. sqlite3_column_blob() can return nullptr for zero-length BLOBs, which is then passed to memcpy() which is UB. Avoid this by c",
+      "status": "pendente",
+      "prioridade": "media",
+      "id": "80713779-bbe3-4748-9a57-9ce12b19516e",
+      "projeto": "",
+      "criadaEm": "2026-05-14T18:06:43.979Z",
+      "atualizadaEm": "2026-05-14T18:06:43.979Z"
+    },
+    {
+      "titulo": "deps: fix V8 build failures by adding climits include",
+      "tags": [
+        "v8 engine",
+        "needs-ci"
+      ],
+      "descricao": "Add explicit #include <climits> to memcopy.h to fix build failures caused by recent GCC/Clang versions removing transient inclusions of the climits header.\r\n\r\nFixes compilation errors when using newer",
+      "status": "pendente",
+      "prioridade": "media",
+      "id": "1d44bd7f-ec51-4171-883b-ac58569452d4",
+      "projeto": "",
+      "criadaEm": "2026-05-14T18:06:43.983Z",
+      "atualizadaEm": "2026-05-14T18:06:43.983Z"
+    },
+    {
+      "titulo": "`net.Socket({ fd })` can abort the Node.js process when iterating invalid file descriptors",
+      "tags": [],
+      "descricao": "### Version\n\n24.13.1\n\n### Platform\n\n```text\nLinux KContainer 6.12.86+deb13-amd64 #1 SMP PREEMPT_DYNAMIC Debian 6.12.86-1 (2026-05-08) x86_64 x86_64 x86_64 GNU/Linux\n```\n\n### Subsystem\n\nnet\n\n### What s",
+      "status": "pendente",
+      "prioridade": "media",
+      "id": "8d6359dc-2d5a-475d-bb5a-f70b29b8b130",
+      "projeto": "",
+      "criadaEm": "2026-05-14T18:06:59.845Z",
+      "atualizadaEm": "2026-05-14T18:06:59.845Z"
+    },
+    {
+      "titulo": "test: unskip snapshot reproducibility test",
+      "tags": [
+        "test",
+        "needs-ci"
+      ],
+      "descricao": "See if the v8 14.6 upgrade has fixed it.\r\n\r\nOn a side note, debian will require reproducible builds in their packages https://lists.debian.org/debian-devel-announce/2026/05/msg00001.html\r\n\r\n<!--\r\nBefo",
+      "status": "pendente",
+      "prioridade": "media",
+      "id": "56656175-8cbb-4015-b6a8-20850959f733",
+      "projeto": "",
+      "criadaEm": "2026-05-14T18:06:59.853Z",
+      "atualizadaEm": "2026-05-14T18:06:59.853Z"
+    },
+    {
+      "titulo": "quic: Documentation on async write on QuicStream",
+      "tags": [],
+      "descricao": "The current documentation says:\n\n> Writer — access [stream.writer](https://github.com/nodejs/node/blob/main/doc/api/quic.md#streamwriter) to push data incrementally. The writer exposes synchronous met",
+      "status": "pendente",
+      "prioridade": "media",
+      "id": "504c1a8d-b966-4c65-882a-c4426d0e3a3c",
+      "projeto": "",
+      "criadaEm": "2026-05-14T18:06:59.858Z",
+      "atualizadaEm": "2026-05-14T18:06:59.858Z"
+    },
+    {
+      "titulo": "quic: Bug in flow control for bidistreams and sessions?",
+      "tags": [],
+      "descricao": "I wrote a test in order to trigger stalls caused by session flow control. (So exhaustion of the flow control window of the session).\nI am not sure if I achieved it, but it stalls. So it might be somet",
+      "status": "pendente",
+      "prioridade": "media",
+      "id": "c60434a9-bfc5-4279-a17e-d530695b40d3",
+      "projeto": "",
+      "criadaEm": "2026-05-14T18:06:59.861Z",
+      "atualizadaEm": "2026-05-14T18:06:59.861Z"
+    },
+    {
+      "titulo": "quic: Current implementation results in tiny Uint8Arrays in streaming mode",
+      "tags": [],
+      "descricao": "@jasnell \nHere is a test (I just wanted to trigger some problem I have seen when I create my PR (I could not provoke any problem, well I have seen some stalls, but they are gone, maybe I did something",
+      "status": "pendente",
+      "prioridade": "media",
+      "id": "7a6ad747-eea1-4948-adae-1689dd795522",
+      "projeto": "",
+      "criadaEm": "2026-05-14T18:06:59.866Z",
+      "atualizadaEm": "2026-05-14T18:06:59.866Z"
+    },
+    {
+      "titulo": "stream/iter: per-consumer AbortSignal is ignored by broadcast.push() and share.pull() fast path",
+      "tags": [
+        "stream"
+      ],
+      "descricao": "### Version\n\n26.1.0\n\n### Platform\n\n```text\nmacOS 26.5.0\n```\n\n### Subsystem\n\nstream\n\n### What steps will reproduce the bug?\n\n```js\nimport { setTimeout as delay } from \"node:timers/promises\";\nimport { b",
+      "status": "pendente",
+      "prioridade": "media",
+      "id": "8e422159-93e2-42ea-9771-5861f4c93a6d",
+      "projeto": "",
+      "criadaEm": "2026-05-14T18:06:59.870Z",
+      "atualizadaEm": "2026-05-14T18:06:59.870Z"
+    },
+    {
+      "titulo": "crypto: surface OpenSSL errors in X509Certificate.toLegacyObject",
+      "tags": [
+        "crypto",
+        "c++",
+        "needs-ci",
+        "dependencies"
+      ],
+      "descricao": "`X509Certificate.toLegacyObject()` silently omits the `subjectaltname`\nand `infoAccess` properties when an internal OpenSSL call fails (e.g.\n`BIO_new` allocation failure), making \"extension absent\"\nin",
+      "status": "pendente",
+      "prioridade": "media",
+      "id": "49c71f50-6456-4d90-a6c6-5bae3645b2da",
+      "projeto": "",
+      "criadaEm": "2026-05-14T18:06:59.874Z",
+      "atualizadaEm": "2026-05-14T18:06:59.874Z"
+    },
+    {
+      "titulo": "stream: validate broadcast writer writev chunks",
+      "tags": [
+        "stream",
+        "author ready",
+        "needs-ci"
+      ],
+      "descricao": "Fixes BroadcastWriter `writev()` and `writevSync()` input validation so\r\nnon-array `chunks` values throw `ERR_INVALID_ARG_TYPE` before reaching\r\n`convertChunks()`.\r\n\r\nPreviously, `writer.writev('abc')",
+      "status": "pendente",
+      "prioridade": "media",
+      "id": "7d4922be-a812-4efb-babb-a179082e8995",
+      "projeto": "",
+      "criadaEm": "2026-05-14T18:06:59.879Z",
+      "atualizadaEm": "2026-05-14T18:06:59.879Z"
+    },
+    {
+      "titulo": "stream/iter: BroadcastWriter writev methods accept non-sequence chunks",
+      "tags": [
+        "stream"
+      ],
+      "descricao": "### Version\n\n26.1.0\n\n### Platform\n\n```text\nmacOS 26.5.0\n```\n\n### Subsystem\n\nstream\n\n### What steps will reproduce the bug?\n\n```js\nimport assert from \"node:assert/strict\";\nimport { broadcast, text } fr",
+      "status": "pendente",
+      "prioridade": "media",
+      "id": "af67cafa-d2f4-4181-a8f6-686b1f03faa7",
+      "projeto": "",
+      "criadaEm": "2026-05-14T18:06:59.883Z",
+      "atualizadaEm": "2026-05-14T18:06:59.883Z"
+    },
+    {
+      "titulo": "doc: update `Http2Server.close` & `Http2SecureServer.close`",
+      "tags": [
+        "doc",
+        "http2"
+      ],
+      "descricao": "https://github.com/nodejs/node/blob/main/lib/internal/http2/core.js#L3505\r\n\r\n```js\r\n  close() {\r\n    ReflectApply(NETServer.prototype.close, this, arguments);\r\n    closeAllSessions(this);\r\n  }\r\n```\r\n\r",
+      "status": "pendente",
+      "prioridade": "media",
+      "id": "11b400f2-1e19-4c6d-a2fe-c63a946aa6c3",
+      "projeto": "",
+      "criadaEm": "2026-05-14T18:06:59.887Z",
+      "atualizadaEm": "2026-05-14T18:06:59.887Z"
+    },
+    {
+      "titulo": "stream: avoid retrying accepted pipeTo writes",
+      "tags": [
+        "stream",
+        "author ready",
+        "needs-ci"
+      ],
+      "descricao": "`pipeTo()` treated `writeSync()` / `writevSync()` returning `false` as a\r\nfailed sync write and retried the same chunk(s) through the async path.\r\n\r\nThat is incorrect for `PushWriter` with `backpressu",
+      "status": "pendente",
+      "prioridade": "media",
+      "id": "72bb35a8-007a-4f6b-afe4-377bd90c2835",
+      "projeto": "",
+      "criadaEm": "2026-05-14T18:06:59.892Z",
+      "atualizadaEm": "2026-05-14T18:06:59.892Z"
+    },
+    {
+      "titulo": "stream/iter: pipeTo retries accepted PushWriter writes under block backpressure",
+      "tags": [
+        "stream"
+      ],
+      "descricao": "### Version\n\n26.1.0\n\n### Platform\n\n```text\nmacOS 26.5.0\n```\n\n### Subsystem\n\nstream\n\n### What steps will reproduce the bug?\n\n```js\nimport { pipeTo, push, text } from \"node:stream/iter\";\n\nconst enc = ne",
+      "status": "pendente",
+      "prioridade": "media",
+      "id": "3698caac-623a-4ad0-a7fc-88c118cb812b",
+      "projeto": "",
+      "criadaEm": "2026-05-14T18:06:59.896Z",
+      "atualizadaEm": "2026-05-14T18:06:59.896Z"
+    },
+    {
+      "titulo": "stream: uncork fromWritable writev on chunk error",
+      "tags": [
+        "stream",
+        "author ready",
+        "needs-ci"
+      ],
+      "descricao": "Fixes `fromWritable().writev()` leaving the wrapped classic `Writable`\r\ncorked when conversion of a later chunk throws.\r\n\r\nPreviously, `writev()` called `writable.cork()` before converting all\r\nchunks",
+      "status": "pendente",
+      "prioridade": "media",
+      "id": "6d827b4a-b675-43a7-9b9a-8199d52b0728",
+      "projeto": "",
+      "criadaEm": "2026-05-14T18:06:59.899Z",
+      "atualizadaEm": "2026-05-14T18:06:59.899Z"
+    },
+    {
+      "titulo": "stream/iter: fromWritable().writev() leaves Writable corked when chunk validation throws",
+      "tags": [
+        "stream"
+      ],
+      "descricao": "### Version\n\n26.1.0\n\n### Platform\n\n```text\nmacOS 26.5.0\n```\n\n### Subsystem\n\nstream\n\n### What steps will reproduce the bug?\n\n```js\nimport { strictEqual, throws } from \"node:assert\";\nimport { Writable }",
+      "status": "pendente",
+      "prioridade": "media",
+      "id": "abf4c74c-a4e6-4ab6-8de6-63dcee8a5778",
+      "projeto": "",
+      "criadaEm": "2026-05-14T18:06:59.903Z",
+      "atualizadaEm": "2026-05-14T18:06:59.903Z"
+    },
+    {
+      "titulo": "test: add more test cases for pathToFileURL",
+      "tags": [
+        "test",
+        "needs-ci"
+      ],
+      "descricao": "Just to make sure we won't introduce any regression anytime further (based on H1 reports we received).",
+      "status": "pendente",
+      "prioridade": "media",
+      "id": "237e6f0d-6f4e-4508-9dfe-7f34d5fee011",
+      "projeto": "",
+      "criadaEm": "2026-05-14T18:06:59.907Z",
+      "atualizadaEm": "2026-05-14T18:06:59.907Z"
+    },
+    {
+      "titulo": "doc: fix CHANGELOG",
+      "tags": [
+        "meta",
+        "author ready",
+        "commit-queue"
+      ],
+      "descricao": "Remove Node.js 23 column.\r\nMark Node.js 20 as End-of-Life and remove the corresponding column.\r\n\r\nFixes: https://github.com/nodejs/node/issues/63291\r\n\r\n<!--\r\nBefore submitting a pull request, please r",
+      "status": "pendente",
+      "prioridade": "media",
+      "id": "c998b13b-0fec-45b3-bd6d-5a96ca5da2f3",
+      "projeto": "",
+      "criadaEm": "2026-05-14T18:06:59.912Z",
+      "atualizadaEm": "2026-05-14T18:06:59.912Z"
+    },
+    {
+      "titulo": "Changelog table is broken",
+      "tags": [],
+      "descricao": "### Version\n\n_No response_\n\n### Platform\n\n```text\n\n```\n\n### Subsystem\n\n_No response_\n\n### What steps will reproduce the bug?\n\ntake a look https://github.com/nodejs/node/blob/main/CHANGELOG.md#nodejs-c",
+      "status": "pendente",
+      "prioridade": "media",
+      "id": "011046a6-96d3-4310-a803-bcaf494076ef",
+      "projeto": "",
+      "criadaEm": "2026-05-14T18:06:59.917Z",
+      "atualizadaEm": "2026-05-14T18:06:59.917Z"
+    },
+    {
+      "titulo": "Node 26 garbage collector not working for arrayBuffers?",
+      "tags": [],
+      "descricao": "### Version\n\n26.1.0\n\n### Platform\n\n```text\nAlpine linux docker\n```\n\n### Subsystem\n\n_No response_\n\n### What steps will reproduce the bug?\n\nSeems Node 25 vs 26 regression and garbage collector not worki",
+      "status": "pendente",
+      "prioridade": "media",
+      "id": "15ccd4c9-f3e8-44ef-a760-10ae6da795df",
+      "projeto": "",
+      "criadaEm": "2026-05-14T18:06:59.921Z",
+      "atualizadaEm": "2026-05-14T18:06:59.921Z"
+    },
+    {
+      "titulo": "sqlite: check null returns from sqlite value functions",
+      "tags": [
+        "c++",
+        "needs-ci",
+        "sqlite"
+      ],
+      "descricao": "sqlite3_column_text() can return nullptr on failure which was not handled. sqlite3_column_blob() can return nullptr for zero-length BLOBs, which is then passed to memcpy() which is UB. Avoid this by c",
+      "status": "pendente",
+      "prioridade": "media",
+      "id": "492f52bb-fa8f-403a-869b-a1dc65052a5b",
+      "projeto": "",
+      "criadaEm": "2026-05-14T18:06:59.926Z",
+      "atualizadaEm": "2026-05-14T18:06:59.926Z"
+    },
+    {
+      "titulo": "deps: fix V8 build failures by adding climits include",
+      "tags": [
+        "v8 engine",
+        "needs-ci"
+      ],
+      "descricao": "Add explicit #include <climits> to memcopy.h to fix build failures caused by recent GCC/Clang versions removing transient inclusions of the climits header.\r\n\r\nFixes compilation errors when using newer",
+      "status": "pendente",
+      "prioridade": "media",
+      "id": "e87568de-df26-43d4-8f7f-25a42ae48697",
+      "projeto": "",
+      "criadaEm": "2026-05-14T18:06:59.931Z",
+      "atualizadaEm": "2026-05-14T18:06:59.931Z"
     }
   ],
-  "log": ["dfsglçkjdfmug9ih"]
+  "log": [
+    "dfsglçkjdfmug9ih"
+  ]
 }
