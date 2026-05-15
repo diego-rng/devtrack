@@ -77,8 +77,7 @@ rl.on('line', async (line) => {
     case '8' : {
       const id = await rl.question('ID da Tarefa: ');
       const response = await git.getBranch();
-      const tarefa = await JSON.parse(await db.listarTasks({id:id}))
-      tarefa.branch = response
+      const tarefa = {branch: response}
       await db.atualizarTask(id, tarefa);
       rl.prompt();
     }

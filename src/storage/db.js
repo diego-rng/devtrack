@@ -71,52 +71,59 @@ export async function adicionarTask(task) {
 
 export async function atualizarTask(id, campos) {
   const content = JSON.parse(await readFile(DB_PATH, 'utf-8'));
-
-  if (!content.tasks.some((task) => task.id === id)) {
-    throw new Error('No task matches the ID provided.');
-  }
-
-  const identifier = content.tasks.findIndex((cont) => cont.id === id);
-
-  if (campos.titulo != undefined) {
-    content.tasks[identifier].titulo = campos.titulo;
-  }
-
-  if (campos.descricao != undefined) {
-    content.tasks[identifier].descricao = campos.descricao;
-  }
-
-  if (campos.status != undefined) {
-    if (['pendente', 'em_progresso', 'concluida'].includes(campos.status)) {
-      content.tasks[identifier].status = campos.status;
-    } else {
-      console.log('Incorrect status');
-      return;
+  try {
+    if (!content.tasks.some((task) => task.id === id)) {
+      throw new Error('No task matches the ID provided.');
     }
-  }
-
-  if (campos.prioridade != undefined) {
-    if (['alta', 'media', 'baixa'].includes(campos.prioridade)) {
-      content.tasks[identifier].prioridade = campos.prioridade;
-    } else {
-      console.log('Incorrect priority');
-      return;
+  
+    const identifier = content.tasks.findIndex((cont) => cont.id === id);
+  
+    if (campos.titulo != undefined) {
+      content.tasks[identifier].titulo = campos.titulo;
     }
+  
+    if (campos.descricao != undefined) {
+      content.tasks[identifier].descricao = campos.descricao;
+    }
+  
+    if (campos.status != undefined) {
+      if (['pendente', 'em_progresso', 'concluida'].includes(campos.status)) {
+        content.tasks[identifier].status = campos.status;
+      } else {
+        console.log('Incorrect status');
+        return;
+      }
+    }
+  
+    if (campos.prioridade != undefined) {
+      if (['alta', 'media', 'baixa'].includes(campos.prioridade)) {
+        content.tasks[identifier].prioridade = campos.prioridade;
+      } else {
+        console.log('Incorrect priority');
+        return;
+      }
+    }
+  
+    if (campos.projeto != undefined) {
+      content.tasks[identifier].projeto = campos.projeto;
+    }
+  
+    if (campos.tags != undefined) {
+      content.tasks[identifier].tags = campos.tags;
+    }
+  
+    if (campos.branch != undefined) {
+      content.tasks[identifier].branch = campos.branch;
+    }
+  
+    content.tasks[identifier].atualizadaEm = new Date();
+  
+    await writeFile(DB_PATH, JSON.stringify(content, null, 2)).then(
+      console.log('Task atualizada com sucesso!'),
+    );
+  } catch(err) {
+    console.error(err)
   }
-
-  if (campos.projeto != undefined) {
-    content.tasks[identifier].projeto = campos.projeto;
-  }
-
-  if (campos.tags != undefined) {
-    content.tasks[identifier].tags = campos.tags;
-  }
-
-  content.tasks[identifier].atualizadaEm = new Date();
-
-  await writeFile(DB_PATH, JSON.stringify(content, null, 2)).then(
-    console.log('Task atualizada com sucesso!'),
-  );
   return;
 }
 
