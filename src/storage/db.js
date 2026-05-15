@@ -63,9 +63,7 @@ export async function adicionarTask(task) {
   task.criadaEm = new Date();
   task.atualizadaEm = task.criadaEm;
 
-  await writeFile(DB_PATH, JSON.stringify(content, null, 2)).then(
-    console.log('Task adicionada com sucesso!'),
-  );
+  await writeFile(DB_PATH, JSON.stringify(content, null, 2))
   return task;
 }
 

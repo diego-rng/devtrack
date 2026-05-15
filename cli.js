@@ -4,89 +4,269 @@ import path from 'path';
 import fs from 'node:fs/promises';
 import { parse } from 'node:path';
 import readline from 'node:readline/promises';
-import { stdin as input, stdout as output } from 'node:process';
+import { stdin, stdout } from 'node:process';
+import { Command } from 'commander';
+import chalk from 'chalk';
+import ora from 'ora';
+import inquirer from 'inquirer';
+import { select, input, checkbox, Separator } from '@inquirer/prompts';
+import * as child from 'child_process';
+import { promisify } from 'util';
 
-import { buscarIssues } from './src/services/github.js'
-import * as git from './src/services/git.js'
+import { buscarIssues } from './src/services/github.js';
+import * as git from './src/services/git.js';
 import * as db from './src/storage/db.js';
 import * as imp from './src/services/export.js';
 console.log('DevTrack v1.0');
 console.log('Node:', process.version);
 console.log('Plataforma:', process.platform);
 
-const rl = readline.createInterface({ input, output, terminal: true });
+// const rl = readline.createInterface({ stdin, stdout, terminal: true });
+
+const program = new Command()
+  .name('devtrack')
+  .description('CLI para gerenciamento de projetos')
+  .version('1.0.0');
 
 const DB_PATH = path.normalize('./data/devtrack.json');
 
-rl.setPrompt(
-  '--------MENU--------\n1. Adicionar\n2. Listar\n3. Atualizar status\n4. Sair\n5. Exportar CSV\n6. Exportar log comprimido\n7. Importar issues do GitHub\n8. Vincular tarefa à branch atual\n> ',
-);
+program
+  .command('add')
+  .description('Adiciona uma nova tarefa')
+  .argument('<titulo>', 'titulo da task')
+  .option('-p, --prioridade <n>', 'alta|media|baixa', 'media')
+  .option('-t, --tags <tags...>', 'tags da tarefa')
+  .option('-P, --projeto <nome>', 'projeto associado')
+  .option('-D, --descricao', 'descricao da tarefa')
+  .action(async (titulo, opts) => {
+    const full = {
+      titulo: titulo,
+      prioridade: opts.prioridade,
+      tags: opts.tags,
+      projeto: opts.projeto,
+      descricao: opts.descricao,
+    };
+    await db.adicionarTask(full);
+    console.log(chalk.green('✔  Tarefa criada com sucesso!'));
+    process.exit(0);
+  });
 
-await rl.prompt();
-
-rl.on('line', async (line) => {
-  switch (line) {
-    case '1': {
-      await addPrompt(line);
-        rl.prompt();
-    }
-    case '2': {
+program
+  .command('list')
+  .description('Lista todas as tarefas')
+  .option('--status', 'status da tarefa')
+  .option('--prioridade', 'prioridade da tarefa')
+  .option('--projeto', 'projeto associado')
+  .option('--json', 'retorna em JSON puro')
+  .action(async (opts) => {
+    try {
       const done = (await parseJSON(DB_PATH)).tasks;
-      const fullDone = done.map((task) => ({
-        id: task.id.slice(0, 8),
-        titulo: task.titulo.slice(0, 29),
-        status: task.status,
-        prioridade: task.prioridade,
-      }));
-      console.table(fullDone);
-      rl.prompt();
-    }
-    case '3': {
-      process.stdout.write('\x1Bc');
-      const id = await rl.question('ID da Task: ');
-      console.log('\n');
-      const newStatus = await rl.question(
-        'Novo Status ("concluida", "em_progresso" ou "pendente"): ',
-      );
-      console.log('\n');
-      await updateStatus(id, newStatus);
-        rl.prompt();
-    }
-    case '4': {
-      rl.close();
+      if (opts.json) {
+        console.log(done);
+      } else {
+        const fullDone = done.map((task) => ({
+          id: task.id.slice(0, 8),
+          titulo: task.titulo.slice(0, 29),
+          status: task.status,
+          prioridade: task.prioridade,
+        }));
+        console.table(fullDone);
+      }
       process.exit(0);
+    } catch (err) {
+      console.error(chalk.red.bold(err));
     }
-    case '5': {
-      let filtro = await rl.question('Filtro (estruture como Objeto JS): ');
-      if (filtro != '') filtro = await JSON.parse(filtro);
-      const caminhoSaida = await rl.question('Caminho de saída: ');
-      await imp.exportarCSV(filtro, caminhoSaida);
-      rl.prompt();
+  });
+
+program
+  .command('update <id>')
+  .description('Atualiza a tarefa especificada.')
+  .option('--status', 'status da tarefa')
+  .option('--prioridade', 'alta|media|baixa', 'media')
+  .option('--tags', 'tags da tarefa')
+  .option('--projeto', 'projeto associado')
+  .option('--descricao', 'descricao da tarefa')
+  .action(async (id, opts) => {
+    try {
+      const full = {
+        titulo: titulo,
+        descricao: opts.descricao,
+        status: opts.status,
+        prioridade: opts.prioridade,
+        projeto: opts.projeto,
+        tags: opts.tags,
+      };
+
+      await db.atualizarTask(id, full);
+      process.exit(0);
+    } catch (err) {
+      console.error(chalk.red.bold(err));
     }
-    case '6': {
-      const caminhoSaida = await rl.question('Caminho de saída: ');
-      await imp.exportarLogComprimido(caminhoSaida);
-      rl.prompt();
+  });
+
+program
+  .command('remove <id>')
+  .description('Remove a tarefa especificada')
+  .action(async (id) => {
+    try {
+      await db.removerTask(id);
+      process.exit(0);
+    } catch (err) {
+      console.error(chalk.red.bold(err));
     }
-    case '7': {
-      const pages = await rl.question('Página? (deixe em branco para página 1.): ')
-      const response = await buscarIssues('diego-rng/devtrack', process.env.GITHUB_TOKEN, (pages === '' ? null : pages));
-      console.log(await response);
-      rl.prompt();
+  });
+
+program
+  .command('export <path>')
+  .description(
+    'Exporta a base de dados em CSV para o caminho de saída especificado.',
+  )
+  .option('--status', 'status da tarefa')
+  .option('--prioridade', 'alta|media|baixa')
+  .option('--tags', 'tags da tarefa')
+  .option('--projeto', 'projeto associado')
+  .option('--descricao', 'descricao da tarefa')
+  .action(async (path, opts) => {
+    try {
+      const full = {
+        descricao: opts.descricao,
+        status: opts.status,
+        prioridade: opts.prioridade,
+        projeto: opts.projeto,
+        tags: opts.tags,
+      };
+      await imp.exportarCSV(full, path).then(
+        process.exit(0)
+      );
+    } catch (err) {
+      console.error(chalk.red.bold(err));
     }
-    case '8' : {
-      const id = await rl.question('ID da Tarefa: ');
-      const response = await git.getBranch();
-      const tarefa = {branch: response}
-      await db.atualizarTask(id, tarefa);
-      rl.prompt();
-    }
-    default: {
-      console.log('Invalid input');
-      rl.prompt();
-    }
-  }
-});
+  });
+
+program.parse(process.argv)
+
+// program
+//   .command('github')
+
+// program
+//   .command('git')
+
+// program.parse(process.argv);
+
+// case '7': {
+//   const pages = await rl.question(
+//     'Página? (deixe em branco para página 1.): ',
+//   );
+//   const response = await buscarIssues(
+//     'diego-rng/devtrack',
+//     process.env.GITHUB_TOKEN,
+//     pages === '' ? null : pages,
+//   );
+//   console.log(await response);
+//   rl.prompt();
+// }
+// case '8': {
+//   const id = await rl.question('ID da Tarefa: ');
+//   const response = await git.getBranch();
+//   const tarefa = { branch: response };
+//   await db.atualizarTask(id, tarefa);
+//   rl.prompt();
+// }
+
+// const firstSelect = await select({
+//   message: 'What would you like to do?',
+//   choices: [
+//     {
+//       name: 'Add',
+//       value: 'add',
+//       description: 'Adiciona uma nova tarefa'
+//     },
+//     {
+//       name: 'List',
+//       value: 'list',
+//       description: 'Lista todas as tarefas'
+//     },
+//     {
+//       name: 'Update',
+//       value: 'update',
+//       description: 'Atualiza a tarefa especificada'
+//     },
+//     {
+//       name: 'Remove',
+//       value: 'remove',
+//       description: 'Remove a tarefa especificada'
+//     },
+//     {
+//       name: 'Export',
+//       value: 'export',
+//       description: 'Exporta a base de dados em CSV para o caminho de saída especificado'
+//     }
+//   ]
+// })
+
+// switch (firstSelect) {
+//   case 'add': {
+//     const title = await input({
+//       message: "Título",
+//       validate: v => v.length >= 3 || "Mínimo 3 caracteres"
+//     })
+//     const choice = await checkbox({
+//       message: "Selecione as entradas que deseja adicionar",
+//       choices: [
+//         {name: 'Prioridade', value: '-p'},
+//         {name: 'Tags', value: '-t'},
+//         {name: 'Projeto', value: '-P'},
+//         {name: 'Descrição', value: '-D'}
+//       ]
+//     })
+//     let final = `add`
+//     if (choice.includes('-p')) {
+//       const prio = await select({
+//         message: 'Prioridade',
+//         choices: [
+//           {name: "Alta", value: 'alta'},
+//           {name: 'Média', value: 'media'},
+//           {name: 'Baixa', value: 'baixa'}
+//         ]
+//       })
+//       final = `${final} -p ${prio}`
+//     }
+//     if (choice.includes('-t')) {
+//       const tagsBase = await input({
+//         message: "Tags (separe com ',' sem espaços)"
+//       })
+//       const tagsSeparated = tagsBase.split(',')
+//       final = `${final} -t ${tagsSeparated}`
+//     }
+//     if (choice.includes('-P')) {
+//       const proj = await input({
+//         message: "Projeto"
+//       })
+//       final = `${final} -P ${proj}`
+//     }
+//     if (choice.includes('-D')) {
+//       const desc = await input({
+//         message: "Descrição"
+//       })
+//       final = `${final} -D ${desc}`
+//     }
+//     final = `${final} ${title}`
+
+//     program.parse(final)
+//   }
+//   case 'list': {
+
+//   }
+//   case 'update': {
+
+//   }
+//   case 'remove': {
+
+//   }
+//   case 'export': {
+
+//   }
+// }
 
 async function parseJSON(raw) {
   try {
@@ -146,8 +326,13 @@ if (!process.stdout.isTTY) {
   process.exit(0);
 }
 
-rl.on('SIGINT', () => {
-  console.log('\nEncerrando...');
-  rl.close();
+process.on('SIGINT', () => {
+  console.log('\nProcesso interrompido.\nEncerrando...');
   process.exit(0);
 });
+
+// rl.on('SIGINT', () => {
+//   console.log('\nEncerrando...');
+//   rl.close();
+//   process.exit(0);
+// });

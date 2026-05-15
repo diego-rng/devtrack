@@ -39,6 +39,7 @@
     "tasks"
   ],
   "dependencies": {
+    "@inquirer/prompts": "^8.4.3",
     "chalk": "^5.6.2",
     "commander": "^14.0.3",
     "inquirer": "^13.4.3",

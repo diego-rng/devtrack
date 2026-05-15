@@ -1,6 +1,6 @@
 import * as child from 'child_process';
 import { promisify } from 'util';
-import { atualizarTask } from '../storage/db';
+import { atualizarTask } from '../storage/db.js';
 
 const execAsync = promisify(child.exec);
 
