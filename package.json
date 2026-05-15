@@ -2,6 +2,21 @@
   "name": "devtrack",
   "version": "1.0.0",
   "description": "Um repositório criado para uso no aprendizado de node.",
+  "type": "module",
+  "main": "cli.js",
+  "exports": {
+    ".": "./src/index.js",
+    "./utils": "./src/utils.js"
+  },
+  "bin": {
+    "devtrack": "./cli.js"
+  },
+  "scripts": {
+    "start": "node cli.js",
+    "dev": "node --watch cli.js",
+    "test": "node --test cli.js",
+    "lint": "eslint"
+  },
   "homepage": "https://github.com/diego-rng/devtrack#readme",
   "bugs": {
     "url": "https://github.com/diego-rng/devtrack/issues"
@@ -12,21 +27,28 @@
   },
   "license": "MIT",
   "author": "",
-  "type": "module",
   "engines": {
     "node": ">=18"
   },
-  "bin": {
-    "devtrack": "./cli.js"
-  },
-  "main": "cli.js",
-  "scripts": {
-    "start": "node cli.js",
-    "dev": "node --watch cli.js",
-    "test": "node --test cli.js",
-    "lint": "eslint"
-  },
+  "files": [
+    "src/",
+    "cli.js"
+  ],
+  "keywords": [
+    "cli",
+    "tasks"
+  ],
   "dependencies": {
+    "chalk": "^5.6.2",
+    "commander": "^14.0.3",
+    "inquirer": "^13.4.3",
+    "ora": "^9.4.0",
     "uuid": "^14.0.0"
+  },
+  "devDependencies": {
+    "eslint": "^10.4.0"
+  },
+  "peerDependencies": {
+    "node": ">=18"
   }
 }
