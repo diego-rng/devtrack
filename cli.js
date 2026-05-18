@@ -187,6 +187,10 @@ program
     }
   })
 
+program
+  .command('new')
+  .action(newPrompt)
+
 program.parse(process.argv);
 
 // case '7': {
@@ -366,6 +370,69 @@ process.on('SIGINT', () => {
   console.log('\nProcesso interrompido.\nEncerrando...');
   process.exit(0);
 });
+
+async function newPrompt() {
+  let newProj = new Boolean()
+  const answers = await inquirer.prompt([
+    {
+      type: 'input', name:'titulo',
+      message: 'Título da tarefa:',
+      validate: v => 3 <= v.length <= 100  || "Mínimo 3 caracteres, Máximo 100."
+    },
+    {
+      type: 'input', name: 'descricao',
+      message: 'Insira a descrição',
+      required: true
+    },
+    {
+      type: 'select', name: 'prioridade',
+      message: 'Prioridade:',
+      choices: ['alta' , 'media', 'baixa']
+    },
+    {
+      type: 'search', name: 'projeto',
+      message: 'Projeto:',
+      source: async () => {
+        const res = await fs.readFile(DB_PATH, 'utf-8')
+
+        const parsed = await JSON.parse(res).tasks
+        let list = []
+        for (let i = 0; i < parsed.length; i++) {
+          const values = Object.entries(parsed[i]).filter(([key]) => key === 'projeto').map(([, value]) => {
+            if (value === null) return null;
+            return value
+          })
+          list.push(values)
+        }
+        return list.map((obj) => ({name:obj, value:obj})), {name: "Criar novo projeto", value: 'val'}
+      }, default: 'val'
+    },
+  ])
+  if (newProj) {
+    const projName = await inquirer.input({
+      message: 'Nome do projeto:',
+      required: true
+    })
+  }
+  const tags = await inquirer.checkbox({
+    message: 'Selecione as tags válidas:',
+    choices: [
+      { name: 'Front-End', value: 'frontend' },
+      { name: 'Back-End', value:'backend' },
+      { name: 'Bug', value:'bug' },
+      { name: 'Feature', value: 'feature' }
+    ]
+  })
+  const obj = {
+    titulo: answers.titulo,
+    descricao: answers.descricao,
+    prioridade: answers.prioridade,
+    projeto: answers.projeto === 'val' ? projName : answers.projeto,
+    tags: tags
+  }
+  console.log(obj)
+  const ans = inquirer.confirm({message:'Criar esta tarefa?', default:true})
+}
 
 // rl.on('SIGINT', () => {
 //   console.log('\nEncerrando...');
