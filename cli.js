@@ -37,7 +37,7 @@ program
   .option('-p, --prioridade <n>', 'alta|media|baixa', 'media')
   .option('-t, --tags <tags...>', 'tags da tarefa')
   .option('-P, --projeto <nome>', 'projeto associado')
-  .option('-D, --descricao', 'descricao da tarefa')
+  .option('-D, --descricao <desc>', 'descricao da tarefa')
   .action(async (titulo, opts) => {
     const full = {
       titulo: titulo,
@@ -54,21 +54,31 @@ program
 program
   .command('list')
   .description('Lista todas as tarefas')
-  .option('--status', 'status da tarefa')
-  .option('--prioridade', 'prioridade da tarefa')
-  .option('--projeto', 'projeto associado')
+  .option('--status <status>', 'status da tarefa')
+  .option('--prioridade <n>', 'prioridade da tarefa')
+  .option('--projeto <nome>', 'projeto associado')
   .option('--json', 'retorna em JSON puro')
   .action(async (opts) => {
     try {
-      const done = (await parseJSON(DB_PATH)).tasks;
+      let done = (await parseJSON(DB_PATH)).tasks;
       if (opts.json) {
         console.log(done);
       } else {
+        if (opts.status) {
+          done = done.filter((a) => a.status === opts.status);
+        }
+        if (opts.prioridade) {
+          done = done.filter((a) => a.prioridade === opts.prioridade);
+        }
+        if (opts.projeto) {
+          done = done.filter((a) => a.projeto === opts.projeto);
+        }
         const fullDone = done.map((task) => ({
           id: task.id.slice(0, 8),
           titulo: task.titulo.slice(0, 29),
           status: task.status,
           prioridade: task.prioridade,
+          projeto: task.projeto,
         }));
         console.table(fullDone);
       }
@@ -126,32 +136,40 @@ program
   .option('--tags', 'tags da tarefa')
   .option('--projeto', 'projeto associado')
   .option('--descricao', 'descricao da tarefa')
-  .action(async (path, opts) => {
+  .action(async (opts, path) => {
+    const spinner = ora('Exportando base de dados...').start();
     try {
-      const full = {
-        descricao: opts.descricao,
-        status: opts.status,
-        prioridade: opts.prioridade,
-        projeto: opts.projeto,
-        tags: opts.tags,
-      };
-      await imp.exportarCSV(full, path).then(
-        process.exit(0)
-      );
+      let full = undefined;
+      if (opts) {
+        full = {
+          descricao: opts.descricao,
+          status: opts.status,
+          prioridade: opts.prioridade,
+          projeto: opts.projeto,
+          tags: opts.tags,
+        };
+      }
+      await imp.exportarCSV(full, path)
+        .then(
+          spinner.succeed(chalk.green('Exportado com sucesso!')),
+          process.exit(0),
+        );
     } catch (err) {
-      console.error(chalk.red.bold(err));
+      spinner.fail(chalk.red(`Erro: ${err.message}`));
     }
   });
 
-program.parse(process.argv)
+program.command('github').action(async () => {
+  const spinner = ora('Sincronizando com GitHub...').start();
+  try {
+  } catch (err) {
+    spinner.fail(chalk.red(`Erro: ${err.message}`));
+  }
+});
 
-// program
-//   .command('github')
+program.command('git');
 
-// program
-//   .command('git')
-
-// program.parse(process.argv);
+program.parse(process.argv);
 
 // case '7': {
 //   const pages = await rl.question(

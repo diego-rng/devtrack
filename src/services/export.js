@@ -2,52 +2,56 @@ import { Transform, Readable } from 'node:stream';
 
 import * as zlib from 'zlib';
 import path from 'node:path';
-import fs from 'node:fs/promises';
+import * as fs from 'node:fs/promises';
+import { readFile } from 'node:fs/promises';
 import * as db from '../storage/db.js';
 import readline from 'node:readline/promises';
 import { pipeline } from 'node:stream/promises';
-import { createWriteStream, createReadStream } from 'node:fs';
+import { createWriteStream, createReadStream, readFileSync } from 'node:fs';
 
-const DB_PATH = path.normalize('./data/devtrack.json');
+const DB_PATH = path.normalize('.\\data\\devtrack.json');
 
 export async function exportarCSV(filtro, caminhoSaida) {
   try {
-    let original = (await JSON.parse(await fs.readFile(DB_PATH, 'utf-8')))
-      .tasks;
+    const original = readFileSync(DB_PATH, 'utf-8')
+    if (!original) {
+      throw new Error("Couldn't read DB")
+    }
+    let updated = await JSON.parse(original).tasks
     const currentDate = new Date();
 
     if (filtro != undefined) {
       if (filtro.titulo != undefined) {
-        original = original.filter((a) => a.titulo === filtro.titulo);
+        updated = updated.tasks.filter((a) => a.titulo === filtro.titulo);
       }
       if (filtro.descricao != undefined) {
-        original = original.filter((a) => a.descricao === filtro.descricao);
+        updated = updated.tasks.filter((a) => a.descricao === filtro.descricao);
       }
       if (filtro.status != undefined) {
-        original = original.filter((a) => a.status === filtro.status);
+        updated = updated.tasks.filter((a) => a.status === filtro.status);
       }
       if (filtro.prioridade != undefined) {
-        original = original.filter((a) => a.prioridade === filtro.prioridade);
+        updated = updated.tasks.filter((a) => a.prioridade === filtro.prioridade);
       }
       if (filtro.projeto != undefined) {
-        original = original.filter((a) => a.projeto === filtro.projeto);
+        updated = updated.tasks.filter((a) => a.projeto === filtro.projeto);
       }
       if (filtro.tags != undefined) {
-        original = original.filter((a) => !a.tags.includes(filtro.tags));
+        updated = updated.tasks.filter((a) => !a.tags.includes(filtro.tags));
       }
     }
 
     let transformed = ``;
-    if ((original != null) | undefined || original.length != 0) {
-      Object.keys(original[0])
+    if ((updated != null | undefined) || updated.length != 0) {
+      Object.keys(updated[0])
         .filter((key) => key !== 'atualizadaEm')
         .forEach((key) => {
           transformed =
             transformed.length === 0 ? key : `${transformed},${key}`;
         });
 
-      for (let i = 0; i < original.length; i++) {
-        const values = Object.entries(original[i])
+      for (let i = 0; i < updated.length; i++) {
+        const values = Object.entries(updated[i])
           .filter(([key]) => key !== 'atualizadaEm')
           .map(([, value]) => {
             if (value === null) return '<null>';
@@ -60,10 +64,11 @@ export async function exportarCSV(filtro, caminhoSaida) {
     } else {
       transformed = 'titulo,status,prioridade,projeto,tags,id,criadaEm';
     }
+    await fs.writeFile(path.normalize(caminhoSaida), transformed);
   } catch (err) {
     console.error(err);
+    throw new Error(err)
   }
-  await fs.writeFile(path.normalize(caminhoSaida), transformed);
 }
 
 export async function exportarLogComprimido(caminhoSaida) {
