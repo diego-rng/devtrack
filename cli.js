@@ -91,11 +91,11 @@ program
 program
   .command('update <id>')
   .description('Atualiza a tarefa especificada.')
-  .option('--status', 'status da tarefa')
-  .option('--prioridade', 'alta|media|baixa', 'media')
-  .option('--tags', 'tags da tarefa')
-  .option('--projeto', 'projeto associado')
-  .option('--descricao', 'descricao da tarefa')
+  .option('--status <status>', 'status da tarefa')
+  .option('--prioridade <n>', 'alta|media|baixa', 'media')
+  .option('--tags <tags...>', 'tags da tarefa')
+  .option('--projeto <nome>', 'projeto associado')
+  .option('--descricao <desc>', 'descricao da tarefa')
   .action(async (id, opts) => {
     try {
       const full = {
@@ -131,11 +131,11 @@ program
   .description(
     'Exporta a base de dados em CSV para o caminho de saída especificado.',
   )
-  .option('--status', 'status da tarefa')
-  .option('--prioridade', 'alta|media|baixa')
-  .option('--tags', 'tags da tarefa')
-  .option('--projeto', 'projeto associado')
-  .option('--descricao', 'descricao da tarefa')
+  .option('--status <status>', 'status da tarefa')
+  .option('--prioridade <n>', 'alta|media|baixa', 'media')
+  .option('--tags <tags...>', 'tags da tarefa')
+  .option('--projeto <nome>', 'projeto associado')
+  .option('--descricao <desc>', 'descricao da tarefa')
   .action(async (opts, path) => {
     const spinner = ora('Exportando base de dados...').start();
     try {
@@ -159,15 +159,33 @@ program
     }
   });
 
-program.command('github').action(async () => {
+program
+  .command('github')
+  .description('Lista todas as issues ativas no repositório do DevTrack.')
+  .action(async () => {
   const spinner = ora('Sincronizando com GitHub...').start();
   try {
+    const full = await buscarIssues('diego-rng/devtrack', process.env.GITHUB_TOKEN)
+    console.log(full)
   } catch (err) {
     spinner.fail(chalk.red(`Erro: ${err.message}`));
   }
 });
 
-program.command('git');
+program
+  .command('git')
+  .argument('<id>' , 'ID da task')
+  .argument('<titulo>', 'Título da Branch')
+  .action((id, titulo) => {
+    const spinner = ora('Creating branch...').start()
+    try { 
+      git.criarBranchDaTarefa(id, titulo).then(
+        spinner.succeed(chalk.green('Branch criada com sucesso!'))
+      )
+    } catch (err) {
+      spinner.fail(chalk.red(`Erro: ${err.message}`))
+    }
+  })
 
 program.parse(process.argv);
 

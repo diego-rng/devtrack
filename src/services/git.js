@@ -68,6 +68,7 @@ export async function criarBranchDaTarefa(id, titulo) {
     const { stdout } = await execAsync(`git branch feat/DT-${id8}-${slug}`);
     const branch = { branch: stdout }
     await atualizarTask(id, branch)
+    return
   } catch (err) {
     console.error(err);
   }

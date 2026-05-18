@@ -9,7 +9,10 @@
       "status": "concluida",
       "prioridade": "media",
       "projeto": "teste",
-      "tags": ["1", "2"],
+      "tags": [
+        "1",
+        "2"
+      ],
       "criadaEm": "2026-05-08T17:51:47.283Z",
       "atualizadaEm": "2026-05-08T17:51:47.283Z"
     },
@@ -20,9 +23,13 @@
       "status": "em_progresso",
       "prioridade": "alta",
       "projeto": "f gvwretr",
-      "tags": ["a", "a2"],
+      "tags": [
+        "a",
+        "a2"
+      ],
       "criadaEm": "2026-05-04T19:39:10.499Z",
-      "atualizadaEm": "2026-05-04T19:39:10.499Z"
+      "atualizadaEm": "2026-05-18T18:49:55.036Z",
+      "branch": ""
     },
     {
       "id": "52134761-b4f7-4dd8-be1f-a5449aae838e",
@@ -114,7 +121,11 @@
     },
     {
       "titulo": "sqlite: check null returns from sqlite value functions",
-      "tags": ["c++", "needs-ci", "sqlite"],
+      "tags": [
+        "c++",
+        "needs-ci",
+        "sqlite"
+      ],
       "descricao": "sqlite3_column_text() can return nullptr on failure which was not handled. sqlite3_column_blob() can return nullptr for zero-length BLOBs, which is then passed to memcpy() which is UB. Avoid this by c",
       "status": "pendente",
       "prioridade": "media",
@@ -125,7 +136,10 @@
     },
     {
       "titulo": "deps: fix V8 build failures by adding climits include",
-      "tags": ["v8 engine", "needs-ci"],
+      "tags": [
+        "v8 engine",
+        "needs-ci"
+      ],
       "descricao": "Add explicit #include <climits> to memcopy.h to fix build failures caused by recent GCC/Clang versions removing transient inclusions of the climits header.\r\n\r\nFixes compilation errors when using newer",
       "status": "pendente",
       "prioridade": "media",
@@ -231,7 +245,10 @@
     {
       "titulo": "fix login",
       "prioridade": "alta",
-      "tags": ["auth", "backend"],
+      "tags": [
+        "auth",
+        "backend"
+      ],
       "projeto": "",
       "id": "c11806bf-ff2f-4ea7-920f-65f49526f53e",
       "status": "pendente",
@@ -239,5 +256,7 @@
       "atualizadaEm": "2026-05-18T16:07:20.446Z"
     }
   ],
-  "log": ["dfsglçkjdfmug9ih"]
+  "log": [
+    "dfsglçkjdfmug9ih"
+  ]
 }

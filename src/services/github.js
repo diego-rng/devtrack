@@ -50,7 +50,6 @@ export async function buscarIssues(repo, token, page = 1) {
     await db.adicionarTask(nextIssue)
     fullIssues.push(nextIssue);
   }
-  console.log(fullIssues)
   return {
     issues: fullIssues,
     hasNextPage: hasNextPage(),
