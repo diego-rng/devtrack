@@ -370,6 +370,32 @@ if (!process.stdout.isTTY) {
 }
 
 async function newPrompt() {
+  const res = await fs.readFile(DB_PATH, 'utf-8');
+  const parsed = await JSON.parse(res).tasks;
+  let list = [];
+  for (let i = 0; i < parsed.length; i++) {
+    const values = Object.entries(parsed[i])
+      .filter(([key]) => key === 'projeto')
+      .map(([, value]) => {
+        if (list.length == 0) {
+          return value;
+        }
+        if (!list.includes([value])) {
+          return value;
+        }
+      });
+    list.push(values[0]);
+  }
+  let fullList = new Array();
+  for (let i = 0; i < list.length; i++) {
+    if (!fullList.includes(list[i])) {
+      if (list[i].length > 0) {
+        fullList.push(list[i]);
+      }
+    }
+  }
+
+  fullList = fullList, { name: 'Criar novo projeto', value: 'val' }
   try {
     let newProj = new Boolean();
     const answers = await inquirer.prompt([
@@ -393,37 +419,10 @@ async function newPrompt() {
         choices: ['alta', 'media', 'baixa'],
       },
       {
-        type: 'search',
+        type: 'list',
         name: 'projeto',
         message: 'Projeto:',
-        source: async (input) => {
-          const res = await fs.readFile(DB_PATH, 'utf-8');
-          const parsed = await JSON.parse(res).tasks;
-          let list = [];
-          for (let i = 0; i < parsed.length; i++) {
-            const values = Object.entries(parsed[i])
-              .filter(([key]) => key === 'projeto')
-              .map(([, value]) => {
-                if (list.length == 0) {return value};
-                if (!list.includes([value])) {
-                  return value
-                }
-              });
-              list.push(values[0]);
-          }
-          let fullList = new Array()
-          for (let i = 0; i < list.length; i++) {
-            if (!fullList.includes(list[i])) {
-              if (list[i].length > 0) {
-                fullList.push(list[i])
-              }
-            }
-          }
-          return 
-            fullList,
-            { name: 'Criar novo projeto', value: 'val' }
-          ;
-        },
+        choices: fullList,
         default: 'val',
       },
     ]);
