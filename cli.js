@@ -136,7 +136,7 @@ program
   .option('--tags <tags...>', 'tags da tarefa')
   .option('--projeto <nome>', 'projeto associado')
   .option('--descricao <desc>', 'descricao da tarefa')
-  .action(async (opts, path) => {
+  .action(async (path, opts) => {
     const spinner = ora('Exportando base de dados...').start();
     try {
       let full = undefined;
@@ -149,11 +149,13 @@ program
           tags: opts.tags,
         };
       }
-      await imp.exportarCSV(full, path)
-        .then(
-          spinner.succeed(chalk.green('Exportado com sucesso!')),
-          process.exit(0),
-        );
+      const exp = await imp.exportarCSV(full, path);
+      if (exp == true) {
+        spinner.succeed(chalk.green('Exportado com sucesso!'));
+        process.exit(0);
+      } else {
+        throw new Error('failed CSV');
+      }
     } catch (err) {
       spinner.fail(chalk.red(`Erro: ${err.message}`));
     }
@@ -163,33 +165,34 @@ program
   .command('github')
   .description('Lista todas as issues ativas no repositório do DevTrack.')
   .action(async () => {
-  const spinner = ora('Sincronizando com GitHub...').start();
-  try {
-    const full = await buscarIssues('diego-rng/devtrack', process.env.GITHUB_TOKEN)
-    console.log(full)
-  } catch (err) {
-    spinner.fail(chalk.red(`Erro: ${err.message}`));
-  }
-});
+    const spinner = ora('Sincronizando com GitHub...').start();
+    try {
+      const full = await buscarIssues(
+        'diego-rng/devtrack',
+        process.env.GITHUB_TOKEN,
+      );
+      console.log(full);
+    } catch (err) {
+      spinner.fail(chalk.red(`Erro: ${err.message}`));
+    }
+  });
 
 program
   .command('git')
-  .argument('<id>' , 'ID da task')
+  .argument('<id>', 'ID da task')
   .argument('<titulo>', 'Título da Branch')
   .action((id, titulo) => {
-    const spinner = ora('Creating branch...').start()
-    try { 
-      git.criarBranchDaTarefa(id, titulo).then(
-        spinner.succeed(chalk.green('Branch criada com sucesso!'))
-      )
+    const spinner = ora('Creating branch...').start();
+    try {
+      git
+        .criarBranchDaTarefa(id, titulo)
+        .then(spinner.succeed(chalk.green('Branch criada com sucesso!')));
     } catch (err) {
-      spinner.fail(chalk.red(`Erro: ${err.message}`))
+      spinner.fail(chalk.red(`Erro: ${err.message}`));
     }
-  })
+  });
 
-program
-  .command('new')
-  .action(newPrompt)
+program.command('new').action(newPrompt);
 
 program.parse(process.argv);
 
@@ -366,73 +369,122 @@ if (!process.stdout.isTTY) {
   process.exit(0);
 }
 
+async function newPrompt() {
+  try {
+    let newProj = new Boolean();
+    const answers = await inquirer.prompt([
+      {
+        type: 'input',
+        name: 'titulo',
+        message: 'Título da tarefa:',
+        validate: (v) =>
+          3 <= v.length <= 100 || 'Mínimo 3 caracteres, Máximo 100.',
+      },
+      {
+        type: 'input',
+        name: 'descricao',
+        message: 'Insira a descrição',
+        required: true,
+      },
+      {
+        type: 'select',
+        name: 'prioridade',
+        message: 'Prioridade:',
+        choices: ['alta', 'media', 'baixa'],
+      },
+      {
+        type: 'search',
+        name: 'projeto',
+        message: 'Projeto:',
+        source: async (input) => {
+          const res = await fs.readFile(DB_PATH, 'utf-8');
+          const parsed = await JSON.parse(res).tasks;
+          let list = [];
+          for (let i = 0; i < parsed.length; i++) {
+            const values = Object.entries(parsed[i])
+              .filter(([key]) => key === 'projeto')
+              .map(([, value]) => {
+                if (list.length == 0) {return value};
+                if (!list.includes([value])) {
+                  return value
+                }
+              });
+              list.push(values[0]);
+          }
+          let fullList = new Array()
+          for (let i = 0; i < list.length; i++) {
+            if (!fullList.includes(list[i])) {
+              if (list[i].length > 0) {
+                fullList.push(list[i])
+              }
+            }
+          }
+          return 
+            fullList,
+            { name: 'Criar novo projeto', value: 'val' }
+          ;
+        },
+        default: 'val',
+      },
+    ]);
+    if (answers.projeto === 'val') {
+      const projName = await inquirer.input({
+        message: 'Nome do projeto:',
+        required: true,
+      });
+    }
+    const tags = await inquirer.checkbox({
+      message: 'Selecione as tags válidas:',
+      choices: [
+        { name: 'Front-End', value: 'frontend' },
+        { name: 'Back-End', value: 'backend' },
+        { name: 'Bug', value: 'bug' },
+        { name: 'Feature', value: 'feature' },
+      ],
+    });
+    const obj = {
+      titulo: answers.titulo,
+      descricao: answers.descricao,
+      prioridade: answers.prioridade,
+      projeto: answers.projeto === 'val' ? projName : answers.projeto,
+      tags: tags,
+    };
+    console.log(obj);
+    const ans = await inquirer.confirm({
+      message: 'Criar esta tarefa?',
+      default: true,
+    });
+
+    if (ans) {
+      const taskList = JSON.parse(await fs.readFile(DB_PATH, 'utf-8')).tasks;
+      const task = await db.adicionarTask(obj);
+      for (let i = 0; i < taskList.count; i++) {
+        const projList = Object.entries(taskList[i])
+          .filter(([key]) => key === 'projeto' && value === task.projeto)
+          .map((proj) => {
+            return proj;
+          });
+      }
+      console.log(chalk.green('Tarefa criada! ID: '), chalk.cyan(`${task.id}`));
+      console.log(
+        chalk.green('\nProjeto '),
+        chalk.gray(`${task.projeto}`),
+        chalk.green(' possui '),
+        chalk.gray(projList.length),
+        chalk.green(' tarefas.'),
+      );
+      return;
+    } else return;
+  } catch (e) {
+    if (e.name === 'ExitPromptError') process.exit(0);
+    throw e;
+  }
+}
+
 process.on('SIGINT', () => {
   console.log('\nProcesso interrompido.\nEncerrando...');
   process.exit(0);
 });
-
-async function newPrompt() {
-  let newProj = new Boolean()
-  const answers = await inquirer.prompt([
-    {
-      type: 'input', name:'titulo',
-      message: 'Título da tarefa:',
-      validate: v => 3 <= v.length <= 100  || "Mínimo 3 caracteres, Máximo 100."
-    },
-    {
-      type: 'input', name: 'descricao',
-      message: 'Insira a descrição',
-      required: true
-    },
-    {
-      type: 'select', name: 'prioridade',
-      message: 'Prioridade:',
-      choices: ['alta' , 'media', 'baixa']
-    },
-    {
-      type: 'search', name: 'projeto',
-      message: 'Projeto:',
-      source: async () => {
-        const res = await fs.readFile(DB_PATH, 'utf-8')
-
-        const parsed = await JSON.parse(res).tasks
-        let list = []
-        for (let i = 0; i < parsed.length; i++) {
-          const values = Object.entries(parsed[i]).filter(([key]) => key === 'projeto').map(([, value]) => {
-            if (value === null) return null;
-            return value
-          })
-          list.push(values)
-        }
-        return list.map((obj) => ({name:obj, value:obj})), {name: "Criar novo projeto", value: 'val'}
-      }, default: 'val'
-    },
-  ])
-  if (newProj) {
-    const projName = await inquirer.input({
-      message: 'Nome do projeto:',
-      required: true
-    })
-  }
-  const tags = await inquirer.checkbox({
-    message: 'Selecione as tags válidas:',
-    choices: [
-      { name: 'Front-End', value: 'frontend' },
-      { name: 'Back-End', value:'backend' },
-      { name: 'Bug', value:'bug' },
-      { name: 'Feature', value: 'feature' }
-    ]
-  })
-  const obj = {
-    titulo: answers.titulo,
-    descricao: answers.descricao,
-    prioridade: answers.prioridade,
-    projeto: answers.projeto === 'val' ? projName : answers.projeto,
-    tags: tags
-  }
-  console.log(obj)
-  const ans = inquirer.confirm({message:'Criar esta tarefa?', default:true})
-}
 
 // rl.on('SIGINT', () => {
 //   console.log('\nEncerrando...');

@@ -2,7 +2,7 @@ import { Transform, Readable } from 'node:stream';
 
 import * as zlib from 'zlib';
 import path from 'node:path';
-import * as fs from 'node:fs/promises';
+import fs from 'node:fs/promises';
 import { readFile } from 'node:fs/promises';
 import * as db from '../storage/db.js';
 import readline from 'node:readline/promises';
@@ -13,11 +13,11 @@ const DB_PATH = path.normalize('.\\data\\devtrack.json');
 
 export async function exportarCSV(filtro, caminhoSaida) {
   try {
-    const original = readFileSync(DB_PATH, 'utf-8')
+    const original = await fs.readFile(DB_PATH, 'utf-8')
     if (!original) {
       throw new Error("Couldn't read DB")
     }
-    let updated = await JSON.parse(original).tasks
+    let updated = await JSON.parse(original)
     const currentDate = new Date();
 
     if (filtro != undefined) {
@@ -49,7 +49,6 @@ export async function exportarCSV(filtro, caminhoSaida) {
           transformed =
             transformed.length === 0 ? key : `${transformed},${key}`;
         });
-
       for (let i = 0; i < updated.length; i++) {
         const values = Object.entries(updated[i])
           .filter(([key]) => key !== 'atualizadaEm')
@@ -64,7 +63,9 @@ export async function exportarCSV(filtro, caminhoSaida) {
     } else {
       transformed = 'titulo,status,prioridade,projeto,tags,id,criadaEm';
     }
+    console.log(typeof updated)
     await fs.writeFile(path.normalize(caminhoSaida), transformed);
+    return true
   } catch (err) {
     console.error(err);
     throw new Error(err)
