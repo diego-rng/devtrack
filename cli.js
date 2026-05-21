@@ -388,14 +388,21 @@ async function newPrompt() {
   }
   let fullList = new Array();
   for (let i = 0; i < list.length; i++) {
-    if (!fullList.includes(list[i])) {
+    const iterator = fullList.values()
+    let isTrue = false
+    for(const value of iterator) {
+      if (value.name == list[i]) {
+        isTrue = true
+      }
+    }
+    if (isTrue == false) {
       if (list[i].length > 0) {
-        fullList.push(list[i]);
+        fullList.push({name: list[i], value: list[i]});
       }
     }
   }
 
-  fullList = fullList, { name: 'Criar novo projeto', value: 'val' }
+  fullList.push({ name: 'Criar novo projeto', value: 'val' })
   try {
     let newProj = new Boolean();
     const answers = await inquirer.prompt([
@@ -419,20 +426,23 @@ async function newPrompt() {
         choices: ['alta', 'media', 'baixa'],
       },
       {
-        type: 'list',
+        type: 'select',
         name: 'projeto',
         message: 'Projeto:',
         choices: fullList,
         default: 'val',
       },
     ]);
+    let projName
     if (answers.projeto === 'val') {
-      const projName = await inquirer.input({
+      projName = await inquirer.prompt({
+        type: 'input',
         message: 'Nome do projeto:',
         required: true,
       });
     }
-    const tags = await inquirer.checkbox({
+    const tags = await inquirer.prompt({
+      type: 'checkbox',
       message: 'Selecione as tags válidas:',
       choices: [
         { name: 'Front-End', value: 'frontend' },
@@ -441,36 +451,36 @@ async function newPrompt() {
         { name: 'Feature', value: 'feature' },
       ],
     });
-    const obj = {
+    const obj = await {
       titulo: answers.titulo,
       descricao: answers.descricao,
       prioridade: answers.prioridade,
-      projeto: answers.projeto === 'val' ? projName : answers.projeto,
-      tags: tags,
+      projeto: answers.projeto === 'val' ? Object.values(projName)[0] : answers.projeto,
+      tags: Object.values(tags)[0],
     };
     console.log(obj);
-    const ans = await inquirer.confirm({
+    const ans = await inquirer.prompt({
+      type: 'confirm',
       message: 'Criar esta tarefa?',
       default: true,
     });
 
     if (ans) {
-      const taskList = JSON.parse(await fs.readFile(DB_PATH, 'utf-8')).tasks;
       const task = await db.adicionarTask(obj);
-      for (let i = 0; i < taskList.count; i++) {
-        const projList = Object.entries(taskList[i])
-          .filter(([key]) => key === 'projeto' && value === task.projeto)
-          .map((proj) => {
-            return proj;
-          });
+      const iterator = list.toString().split(',')
+      const projList = []
+      for (let i = 0; i < iterator.length; i++) {
+        if (iterator[i] == task.projeto) {
+          projList.push(iterator[i])
+        }
       }
       console.log(chalk.green('Tarefa criada! ID: '), chalk.cyan(`${task.id}`));
       console.log(
-        chalk.green('\nProjeto '),
+        chalk.green('Projeto'),
         chalk.gray(`${task.projeto}`),
-        chalk.green(' possui '),
-        chalk.gray(projList.length),
-        chalk.green(' tarefas.'),
+        chalk.green('possui'),
+        chalk.gray(answers.projeto === 'val' ? 1 : projList.length),
+        chalk.green('tarefas.'),
       );
       return;
     } else return;

@@ -254,6 +254,263 @@
       "status": "pendente",
       "criadaEm": "2026-05-18T16:07:20.446Z",
       "atualizadaEm": "2026-05-18T16:07:20.446Z"
+    },
+    {
+      "titulo": "dsafdgfagfda",
+      "descricao": "fdsafdsaf",
+      "prioridade": "alta",
+      "projeto": "null",
+      "tags": {
+        "": [
+          "frontend",
+          "bug"
+        ]
+      },
+      "id": "9fd81af4-3f4e-457d-bf23-bcc855a2059c",
+      "status": "pendente",
+      "criadaEm": "2026-05-21T16:25:11.040Z",
+      "atualizadaEm": "2026-05-21T16:25:11.040Z"
+    },
+    {
+      "titulo": "fdsafsdfjiof",
+      "descricao": "fdgfsrthy",
+      "prioridade": "media",
+      "projeto": "null",
+      "tags": {
+        "": [
+          "frontend",
+          "bug"
+        ]
+      },
+      "id": "49db01a9-5bd1-465b-a4db-8e96789c67cf",
+      "status": "pendente",
+      "criadaEm": "2026-05-21T16:26:50.637Z",
+      "atualizadaEm": "2026-05-21T16:26:50.637Z"
+    },
+    {
+      "titulo": "gfesgfgd",
+      "descricao": "dfsghsrgh",
+      "prioridade": "baixa",
+      "projeto": "null",
+      "tags": {
+        "": [
+          "frontend",
+          "bug"
+        ]
+      },
+      "id": "008ad345-8303-40c5-a693-856b7e1800bc",
+      "status": "pendente",
+      "criadaEm": "2026-05-21T16:29:12.097Z",
+      "atualizadaEm": "2026-05-21T16:29:12.097Z"
+    },
+    {
+      "titulo": "fdsagfdfdsg",
+      "descricao": "gsdgfdgds",
+      "prioridade": "baixa",
+      "projeto": "null",
+      "tags": [
+        "frontend",
+        "bug"
+      ],
+      "id": "6d0cfe34-6c10-4d3e-8792-f284eea2d836",
+      "status": "pendente",
+      "criadaEm": "2026-05-21T16:31:17.081Z",
+      "atualizadaEm": "2026-05-21T16:31:17.081Z"
+    },
+    {
+      "titulo": "afdsfasdfsda",
+      "descricao": "adfdsasdfdsa",
+      "prioridade": "baixa",
+      "projeto": "null",
+      "tags": [
+        "frontend",
+        "bug"
+      ],
+      "id": "8b733dab-1ec6-4bb6-a187-f8cdb73f69c1",
+      "status": "pendente",
+      "criadaEm": "2026-05-21T16:33:59.951Z",
+      "atualizadaEm": "2026-05-21T16:33:59.951Z"
+    },
+    {
+      "titulo": "asdasdsadas",
+      "descricao": "fdsfsdafdsfa",
+      "prioridade": "baixa",
+      "projeto": "null",
+      "tags": [
+        "frontend",
+        "bug"
+      ],
+      "id": "d2c5e5b0-3dff-4fe2-9756-1953b47007ca",
+      "status": "pendente",
+      "criadaEm": "2026-05-21T16:43:40.289Z",
+      "atualizadaEm": "2026-05-21T16:43:40.289Z"
+    },
+    {
+      "titulo": "rsggdfgdsfg",
+      "descricao": "sfgdsgsdgf",
+      "prioridade": "baixa",
+      "projeto": "null",
+      "tags": [
+        "frontend",
+        "bug"
+      ],
+      "id": "6dce7411-42bc-4749-9053-17ed7faa7242",
+      "status": "pendente",
+      "criadaEm": "2026-05-21T16:44:20.540Z",
+      "atualizadaEm": "2026-05-21T16:44:20.540Z"
+    },
+    {
+      "titulo": "fefgagdsfg",
+      "descricao": "gfdsgdfgfd",
+      "prioridade": "baixa",
+      "projeto": "null",
+      "tags": [
+        "frontend",
+        "bug"
+      ],
+      "id": "3d0032a5-195f-4aca-9f3a-6f09e70d63cb",
+      "status": "pendente",
+      "criadaEm": "2026-05-21T16:45:49.231Z",
+      "atualizadaEm": "2026-05-21T16:45:49.231Z"
+    },
+    {
+      "titulo": "hdfsgfds",
+      "descricao": "gfdsgfdgdsf",
+      "prioridade": "baixa",
+      "projeto": "null",
+      "tags": [
+        "frontend",
+        "bug"
+      ],
+      "id": "a8a97806-d034-40f7-bde0-e1d6f104da82",
+      "status": "pendente",
+      "criadaEm": "2026-05-21T16:46:30.563Z",
+      "atualizadaEm": "2026-05-21T16:46:30.563Z"
+    },
+    {
+      "titulo": "dsfsdaffsda",
+      "descricao": "y",
+      "prioridade": "baixa",
+      "projeto": "null",
+      "tags": [
+        "frontend",
+        "bug"
+      ],
+      "id": "bbe713be-ca33-4b45-b2d5-7f230c86f677",
+      "status": "pendente",
+      "criadaEm": "2026-05-21T16:48:32.964Z",
+      "atualizadaEm": "2026-05-21T16:48:32.964Z"
+    },
+    {
+      "titulo": "sdfsdafafdsaf",
+      "descricao": "fagfdsfdsf",
+      "prioridade": "baixa",
+      "projeto": "null",
+      "tags": [
+        "frontend",
+        "bug"
+      ],
+      "id": "44b175e8-152c-4525-8b16-0543554b53e0",
+      "status": "pendente",
+      "criadaEm": "2026-05-21T16:51:06.300Z",
+      "atualizadaEm": "2026-05-21T16:51:06.300Z"
+    },
+    {
+      "titulo": "dsfdsafsdafsf",
+      "descricao": "fsdfsdafdsf",
+      "prioridade": "baixa",
+      "projeto": "null",
+      "tags": [
+        "frontend",
+        "bug"
+      ],
+      "id": "abb8f7d5-fc84-4453-a31f-d6a801929f5a",
+      "status": "pendente",
+      "criadaEm": "2026-05-21T16:55:07.995Z",
+      "atualizadaEm": "2026-05-21T16:55:07.995Z"
+    },
+    {
+      "titulo": "vxcbfghfdgfdg",
+      "descricao": "dfgdsfgdfsg",
+      "prioridade": "baixa",
+      "projeto": "null",
+      "tags": [
+        "frontend",
+        "bug"
+      ],
+      "id": "0244bf22-f928-44d5-9cad-6d57d0c984f5",
+      "status": "pendente",
+      "criadaEm": "2026-05-21T17:00:49.094Z",
+      "atualizadaEm": "2026-05-21T17:00:49.094Z"
+    },
+    {
+      "titulo": "fgdhsfghf",
+      "descricao": "hfgdhfdghd",
+      "prioridade": "baixa",
+      "projeto": "null",
+      "tags": [
+        "frontend",
+        "bug"
+      ],
+      "id": "4050534c-80ae-4b32-9fae-b6808f7373f2",
+      "status": "pendente",
+      "criadaEm": "2026-05-21T17:01:19.684Z",
+      "atualizadaEm": "2026-05-21T17:01:19.684Z"
+    },
+    {
+      "titulo": "adfdsafdsf",
+      "descricao": "afdsafasd",
+      "prioridade": "baixa",
+      "projeto": "null",
+      "tags": [
+        "frontend",
+        "bug"
+      ],
+      "id": "4918265e-eb50-4191-b807-8328a181e165",
+      "status": "pendente",
+      "criadaEm": "2026-05-21T17:02:53.542Z",
+      "atualizadaEm": "2026-05-21T17:02:53.542Z"
+    },
+    {
+      "titulo": "fsdafdsfadsf",
+      "descricao": "dsafsdafdsf",
+      "prioridade": "baixa",
+      "projeto": "null",
+      "tags": [
+        "frontend",
+        "bug"
+      ],
+      "id": "9bc0d2d1-f906-4b2a-a14f-86d908e2aa38",
+      "status": "pendente",
+      "criadaEm": "2026-05-21T17:03:07.991Z",
+      "atualizadaEm": "2026-05-21T17:03:07.991Z"
+    },
+    {
+      "titulo": "dsfsafdf",
+      "descricao": "safdsfsdafs",
+      "prioridade": "baixa",
+      "projeto": "rfsgfdgs",
+      "tags": [
+        "frontend",
+        "feature"
+      ],
+      "id": "537fd885-ad29-4895-8e59-6b5c91c84332",
+      "status": "pendente",
+      "criadaEm": "2026-05-21T17:09:03.594Z",
+      "atualizadaEm": "2026-05-21T17:09:03.594Z"
+    },
+    {
+      "titulo": "fsdfdsafdsfdsa",
+      "descricao": "dsfsdafdsafdfsadfas",
+      "prioridade": "baixa",
+      "projeto": "teste",
+      "tags": [
+        "backend"
+      ],
+      "id": "ca44215f-15ca-4733-9570-9d6770609be8",
+      "status": "pendente",
+      "criadaEm": "2026-05-21T17:09:52.599Z",
+      "atualizadaEm": "2026-05-21T17:09:52.599Z"
     }
   ],
   "log": [
