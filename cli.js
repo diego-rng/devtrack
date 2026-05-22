@@ -17,6 +17,7 @@ import { buscarIssues } from './src/services/github.js';
 import * as git from './src/services/git.js';
 import * as db from './src/storage/db.js';
 import * as imp from './src/services/export.js';
+import { serveCall } from './src/server/index.js';
 console.log('DevTrack v1.0');
 console.log('Node:', process.version);
 console.log('Plataforma:', process.platform);
@@ -192,7 +193,20 @@ program
     }
   });
 
-program.command('new').action(newPrompt);
+program.command('new')
+  .description('Começa um prompt guiado para criar uma nova tarefa')
+  .action(newPrompt);
+
+program
+  .command('serve')
+  .argument('[porta]', 'Porta para abrir o servidor')
+  .action((port) => {
+    try {
+      await serveCall(port)
+    } catch (err) {
+      console.error(err)
+    }
+  })
 
 program.parse(process.argv);
 

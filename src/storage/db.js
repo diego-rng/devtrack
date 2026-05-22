@@ -117,8 +117,10 @@ export async function atualizarTask(id, campos) {
     content.tasks[identifier].atualizadaEm = new Date();
   
     await writeFile(DB_PATH, JSON.stringify(content, null, 2))
+    return content
   } catch(err) {
     console.error(err)
+    throw err
   }
   return;
 }
