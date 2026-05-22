@@ -12,6 +12,8 @@ import inquirer from 'inquirer';
 import { select, input, checkbox, Separator } from '@inquirer/prompts';
 import * as child from 'child_process';
 import { promisify } from 'util';
+import { Worker, isMainThread, workerData, parentPort } from 'worker_threads';
+import os from 'os';
 
 import { buscarIssues } from './src/services/github.js';
 import * as git from './src/services/git.js';
@@ -502,6 +504,31 @@ async function newPrompt() {
     if (e.name === 'ExitPromptError') process.exit(0);
     throw e;
   }
+}
+
+async function processInParallel(lots) {
+  const maxWorkers = os.cpus().length;
+  const results = [];
+
+  for (let i = 0; i < lots.length; i += maxWorkers) {
+    const batch = lots.slice(i, i + maxWorkers);
+    const promises = batch.map(lots => executeWorker(lots));
+    results.push(...await Promise.all(promises));
+  }
+  return results
+}
+
+function executeWorker(data) {
+  return new Promise((resolve, reject) => {
+    const w = new Worker(new URL('./worker.js', import.meta.url), {
+      workerData: dados
+    });
+    w.on("message", resolve);
+    w.on("error", reject);
+    w.on("exit", code => {
+      if (code !== 0) reject(new Error(`Worker ended with code ${code}`))
+    });
+  });
 }
 
 process.on('SIGINT', () => {
