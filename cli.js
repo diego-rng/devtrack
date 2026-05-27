@@ -195,18 +195,33 @@ program
     }
   });
 
-program.command('new')
+program
+  .command('new')
   .description('Começa um prompt guiado para criar uma nova tarefa')
   .action(newPrompt);
 
 program
   .command('serve')
   .argument('[porta]', 'Porta para abrir o servidor')
-  .action((port) => {
+  .action(async (port) => {
     try {
-      await serveCall(port)
+      await serveCall(port);
     } catch (err) {
-      console.error(err)
+      console.error(err);
+    }
+  });
+
+program
+  .command('analyze')
+  .description('Analiza os arquivos .log e .csv da pasta.')
+  .action(async () => {
+    try {
+      const csv = await processInParallel(undefined, 'csv')
+      const log = await processInParallel(undefined, 'log')
+
+      console.log(`${csv}\n${log}`)
+    } catch (err) {
+      console.error(chalk.red(`Erro: ${err.message}`))
     }
   })
 
@@ -404,21 +419,21 @@ async function newPrompt() {
   }
   let fullList = new Array();
   for (let i = 0; i < list.length; i++) {
-    const iterator = fullList.values()
-    let isTrue = false
-    for(const value of iterator) {
+    const iterator = fullList.values();
+    let isTrue = false;
+    for (const value of iterator) {
       if (value.name == list[i]) {
-        isTrue = true
+        isTrue = true;
       }
     }
     if (isTrue == false) {
       if (list[i].length > 0) {
-        fullList.push({name: list[i], value: list[i]});
+        fullList.push({ name: list[i], value: list[i] });
       }
     }
   }
 
-  fullList.push({ name: 'Criar novo projeto', value: 'val' })
+  fullList.push({ name: 'Criar novo projeto', value: 'val' });
   try {
     let newProj = new Boolean();
     const answers = await inquirer.prompt([
@@ -449,7 +464,7 @@ async function newPrompt() {
         default: 'val',
       },
     ]);
-    let projName
+    let projName;
     if (answers.projeto === 'val') {
       projName = await inquirer.prompt({
         type: 'input',
@@ -471,7 +486,10 @@ async function newPrompt() {
       titulo: answers.titulo,
       descricao: answers.descricao,
       prioridade: answers.prioridade,
-      projeto: answers.projeto === 'val' ? Object.values(projName)[0] : answers.projeto,
+      projeto:
+        answers.projeto === 'val'
+          ? Object.values(projName)[0]
+          : answers.projeto,
       tags: Object.values(tags)[0],
     };
     console.log(obj);
@@ -483,11 +501,11 @@ async function newPrompt() {
 
     if (ans) {
       const task = await db.adicionarTask(obj);
-      const iterator = list.toString().split(',')
-      const projList = []
+      const iterator = list.toString().split(',');
+      const projList = [];
       for (let i = 0; i < iterator.length; i++) {
         if (iterator[i] == task.projeto) {
-          projList.push(iterator[i])
+          projList.push(iterator[i]);
         }
       }
       console.log(chalk.green('Tarefa criada! ID: '), chalk.cyan(`${task.id}`));
@@ -506,27 +524,49 @@ async function newPrompt() {
   }
 }
 
-async function processInParallel(lots) {
+async function processInParallel(file = undefined, type = undefined) {
   const maxWorkers = os.cpus().length;
   const results = [];
 
-  for (let i = 0; i < lots.length; i += maxWorkers) {
-    const batch = lots.slice(i, i + maxWorkers);
-    const promises = batch.map(lots => executeWorker(lots));
-    results.push(...await Promise.all(promises));
-  }
-  return results
+  if (file != undefined) {
+    const promises = executeWorker(file);
+    results.push(...(await Promise.all(promises)));
+  } else if (type != undefined) {
+    const files = await fs.readdir('./', {
+      recursive: true,
+      encoding: 'utf-8',
+      withFileTypes: true,
+    });
+    const filtered = files.filter(
+      (a) => a.isDirectory() === false && a.name.includes(type),
+    );
+    let filesDone = 0;
+    const result = filtered.map((a) => {const filePath = path.join(a.parentPath ?? a.path, a.name); return executeWorker(filePath).then((res) => {
+      filesDone++
+      console.log(`Processando ${filesDone}/${filtered.length} arquivos...`);
+      return res;
+    })});
+    results.push(...(await Promise.all(result)));
+  } else throw new Error('Missing a required entry');
+  return results;
 }
 
 function executeWorker(data) {
   return new Promise((resolve, reject) => {
-    const w = new Worker(new URL('./worker.js', import.meta.url), {
-      workerData: dados
+    let filesDone = 0
+    const w = new Worker(new URL('./workers/fileWorker.js', import.meta.url), {
+      workerData: data,
     });
-    w.on("message", resolve);
-    w.on("error", reject);
-    w.on("exit", code => {
-      if (code !== 0) reject(new Error(`Worker ended with code ${code}`))
+    w.errors = 0
+
+    w.on('message', resolve);
+    w.on('error', (err) => {
+      w.errors++;
+      console.log(`Encountered an error: ${err.message}\n Error number ${w.errors}`)
+      reject(err)
+    });
+    w.on('exit', (code) => {
+      if (code !== 0) reject(new Error(`Worker ended with code ${code}`));
     });
   });
 }

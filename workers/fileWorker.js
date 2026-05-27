@@ -1,12 +1,16 @@
-import { workerData, parentPort } from 'worker_threads'
+import { workerData, parentPort } from 'worker_threads';
+import fs from 'node:fs/promises';
+import { Dirent } from 'node:fs';
+import path from 'node:path';
 
-const { arquivo, tipo } = workerData; 
+let total
+const input = workerData;
 
-const result = arquivo.map((res) => {
+const full = await fs.readFile(input, 'utf-8');
+total = {
+  lines: full.split('\n').length,
+  sizeBytes: (await fs.stat(input)).size,
+  words: full.split(' ').length,
+};
 
-
-    return {
-        lines: res.split("\n").length,
-        words: res.split(" ").length
-    }
-})
+parentPort.postMessage(full);
