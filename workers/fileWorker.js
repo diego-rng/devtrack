@@ -13,4 +13,4 @@ total = {
   words: full.split(' ').length,
 };
 
-parentPort.postMessage(full);
+parentPort.postMessage(total);

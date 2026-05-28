@@ -14,6 +14,7 @@ import * as child from 'child_process';
 import { promisify } from 'util';
 import { Worker, isMainThread, workerData, parentPort } from 'worker_threads';
 import os from 'os';
+import { performance, PerformanceObserver } from 'perf_hooks'
 
 import { buscarIssues } from './src/services/github.js';
 import * as git from './src/services/git.js';
@@ -216,14 +217,37 @@ program
   .description('Analiza os arquivos .log e .csv da pasta.')
   .action(async () => {
     try {
-      const csv = await processInParallel(undefined, 'csv')
-      const log = await processInParallel(undefined, 'log')
+      performance.mark('start-analysis')
+      const {csv, csvUsed} = await processInParallel(undefined, 'csv');
+      const {log, logUsed} = await processInParallel(undefined, 'log');
+      let totalFiles = 0
+      let totalLines = 0
+      let totalSize = 0
+      
+      console.log('CSV:\n')
+      for (let i = 0; i < csv.length; i++) {
+        console.log(`Number ${i+1}:`)
+        for (const [key, value] of Object.entries(csv[i])) {
+          totalfiles++
+          totalLines += csv[i].lines
+          totalSize += csv[i].sizeBytes
+          console.log(`   ${key}: ${value}`)
+        }
+      }
+      console.log('Log:\n')
+      for (let i = 0; i < log.length; i++) {
+        console.log(`Number ${i+1}: `)
+        for (const [key, value] of Object.entries(log[i])) {
+          console.log(`   ${key}: ${value}`)
+        }
+      }
+      performance.mark('end-analysis')
 
-      console.log(`${csv}\n${log}`)
+
     } catch (err) {
-      console.error(chalk.red(`Erro: ${err.message}`))
+      console.error(chalk.red(`Erro: ${err.message}`));
     }
-  })
+  });
 
 program.parse(process.argv);
 
@@ -527,6 +551,7 @@ async function newPrompt() {
 async function processInParallel(file = undefined, type = undefined) {
   const maxWorkers = os.cpus().length;
   const results = [];
+  let workersUsed = 0
 
   if (file != undefined) {
     const promises = executeWorker(file);
@@ -541,29 +566,39 @@ async function processInParallel(file = undefined, type = undefined) {
       (a) => a.isDirectory() === false && a.name.includes(type),
     );
     let filesDone = 0;
-    const result = filtered.map((a) => {const filePath = path.join(a.parentPath ?? a.path, a.name); return executeWorker(filePath).then((res) => {
-      filesDone++
-      console.log(`Processando ${filesDone}/${filtered.length} arquivos...`);
-      return res;
-    })});
-    results.push(...(await Promise.all(result)));
+    for (let i = 0; i < filtered.length; i+= maxWorkers) {
+      workersUsed++
+      const batch = filtered.slice(i, i + maxWorkers);
+      const result = batch.map((a) => {
+        const filePath = path.join(a.parentPath ?? a.path, a.name);
+        return executeWorker(filePath).then((res) => {
+          filesDone++;
+          console.log(`Processando ${filesDone}/${filtered.length} arquivos...`);
+          return res;
+        });
+      });
+      results.push(...(await Promise.all(result)));
+    }
   } else throw new Error('Missing a required entry');
-  return results;
+  console.log(` results ${JSON.stringify(results[0])} \n worker ${workersUsed}`)
+  return results, workersUsed;
 }
 
 function executeWorker(data) {
   return new Promise((resolve, reject) => {
-    let filesDone = 0
+    let filesDone = 0;
     const w = new Worker(new URL('./workers/fileWorker.js', import.meta.url), {
       workerData: data,
     });
-    w.errors = 0
+    w.errors = 0;
 
     w.on('message', resolve);
     w.on('error', (err) => {
       w.errors++;
-      console.log(`Encountered an error: ${err.message}\n Error number ${w.errors}`)
-      reject(err)
+      console.log(
+        `Encountered an error: ${err.message}\n Error number ${w.errors}`,
+      );
+      reject(err);
     });
     w.on('exit', (code) => {
       if (code !== 0) reject(new Error(`Worker ended with code ${code}`));
