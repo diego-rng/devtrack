@@ -11,6 +11,7 @@ export const DB_PATH = path.join(
   path.normalize('../../data/devtrack.json'),
 );
 
+// #region lerDB
 export async function lerDB() {
   if (!existsSync(DB_PATH)) {
     await writeFile(
@@ -21,11 +22,13 @@ export async function lerDB() {
   return JSON.parse(await readFile(DB_PATH, 'utf-8'));
 }
 
+// #region salvarDB
 export async function salvarDB(dados) {
   const temp = JSON.stringify(dados);
   await writeFile(DB_PATH, temp);
 }
 
+// #region adicionarTask
 export async function adicionarTask(task) {
   const newID = uuid();
   const content = JSON.parse(await readFile(DB_PATH, 'utf-8'));
@@ -67,6 +70,7 @@ export async function adicionarTask(task) {
   return task;
 }
 
+// #region atualizarTask
 export async function atualizarTask(id, campos) {
   const content = JSON.parse(await readFile(DB_PATH, 'utf-8'));
   try {
@@ -125,6 +129,7 @@ export async function atualizarTask(id, campos) {
   return;
 }
 
+// #region removerTask
 export async function removerTask(id) {
   const content = JSON.parse(await readFile(DB_PATH, 'utf-8'));
 
@@ -139,6 +144,7 @@ export async function removerTask(id) {
   }
 }
 
+// #region listarTasks
 export async function listarTasks(filtro) {
   const content = JSON.parse(await readFile(DB_PATH, 'utf-8'));
   if (filtro == undefined) {
@@ -172,6 +178,7 @@ export async function listarTasks(filtro) {
   }
 }
 
+// #region fazerBackup
 export async function fazerBackup() {
   const newBackup = await readFile(DB_PATH, 'utf-8');
   const currentDate = new Date();

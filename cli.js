@@ -14,7 +14,7 @@ import * as child from 'child_process';
 import { promisify } from 'util';
 import { Worker, isMainThread, workerData, parentPort } from 'worker_threads';
 import os from 'os';
-import { performance, PerformanceObserver } from 'perf_hooks'
+import { performance, PerformanceObserver } from 'perf_hooks';
 
 import { buscarIssues } from './src/services/github.js';
 import * as git from './src/services/git.js';
@@ -25,7 +25,12 @@ console.log('DevTrack v1.0');
 console.log('Node:', process.version);
 console.log('Plataforma:', process.platform);
 
-// const rl = readline.createInterface({ stdin, stdout, terminal: true });
+const plugins = await fs.readdir('./plugins', 'utf-8');
+
+if (plugins.length >= 1) {
+  for (const p of plugins) {
+  }
+}
 
 const program = new Command()
   .name('devtrack')
@@ -33,6 +38,8 @@ const program = new Command()
   .version('1.0.0');
 
 const DB_PATH = path.normalize('./data/devtrack.json');
+
+// #region add command
 
 program
   .command('add')
@@ -54,6 +61,8 @@ program
     console.log(chalk.green('✔  Tarefa criada com sucesso!'));
     process.exit(0);
   });
+//#endregion add command
+// #region list command
 
 program
   .command('list')
@@ -92,6 +101,8 @@ program
     }
   });
 
+// #region update command
+
 program
   .command('update <id>')
   .description('Atualiza a tarefa especificada.')
@@ -118,6 +129,8 @@ program
     }
   });
 
+// #region remove command
+
 program
   .command('remove <id>')
   .description('Remove a tarefa especificada')
@@ -129,6 +142,8 @@ program
       console.error(chalk.red.bold(err));
     }
   });
+
+// #region export command
 
 program
   .command('export <path>')
@@ -165,6 +180,8 @@ program
     }
   });
 
+// #region github command
+
 program
   .command('github')
   .description('Lista todas as issues ativas no repositório do DevTrack.')
@@ -181,6 +198,8 @@ program
     }
   });
 
+// #region git command
+
 program
   .command('git')
   .argument('<id>', 'ID da task')
@@ -196,10 +215,14 @@ program
     }
   });
 
+// #region new command
+
 program
   .command('new')
   .description('Começa um prompt guiado para criar uma nova tarefa')
   .action(newPrompt);
+
+// #region serve command
 
 program
   .command('serve')
@@ -212,45 +235,60 @@ program
     }
   });
 
+// #region analyze command
+
 program
   .command('analyze')
   .description('Analiza os arquivos .log e .csv da pasta.')
   .action(async () => {
     try {
-      performance.mark('start-csv')
-      const {results: csv, workersUsed: csvUsed} = await processInParallel(undefined, 'csv');
-      performance.mark('end-csv')
-      performance.measure('csv-full', 'start-csv', 'end-csv');
-      const [timeCSV] = performance.getEntriesByName('csv-full')
-      performance.mark('start-log')
-      const {results: log, workersUsed: logUsed} = await processInParallel(undefined, 'log');
-      performance.mark('end-log')
-      performance.measure('log-full', 'start-log', 'end-log')
-      const [timeLOG] = performance.getEntriesByName('log-full')
-      let totalFiles = 0
-      let totalLines = 0
-      let totalSize = 0
-      
-      console.log('CSV:\n')
-      for (let i = 0; i < csv.length; i++) {
-        console.log(`Number ${i+1}:`)
-        for (const [key, value] of Object.entries(csv[i])) {
-          totalFiles++
-          totalLines += csv[i].lines
-          totalSize += csv[i].sizeBytes
-          console.log(`   ${key}: ${value}`)
-        }
-      }
-      console.log('Log:\n')
-      for (let i = 0; i < log.length; i++) {
-        console.log(`Number ${i+1}: `)
-        for (const [key, value] of Object.entries(log[i])) {
-          console.log(`   ${key}: ${value}`)
-        }
-      }
-      console.log('---------------------')
-      console.log(`Relatório Final:\n   Total de arquivos: ${totalFiles}\n   Total de Linhas: ${totalLines}\n   Tamanho total: ${totalSize} bytes\n   Time needed: ${timeCSV.duration > timeLOG.duration ? timeCSV.duration.toFixed(4) : timeLOG.duration.toFixed(4)}ms\n   Total de Workers usados: ${csvUsed + logUsed}`)
+      performance.mark('start-csv');
 
+      const { results: csv, workersUsed: csvUsed } = await processInParallel(
+        undefined,
+        'csv',
+      );
+
+      performance.mark('end-csv');
+      performance.measure('csv-full', 'start-csv', 'end-csv');
+      const [timeCSV] = performance.getEntriesByName('csv-full');
+
+      performance.mark('start-log');
+
+      const { results: log, workersUsed: logUsed } = await processInParallel(
+        undefined,
+        'log',
+      );
+
+      performance.mark('end-log');
+      performance.measure('log-full', 'start-log', 'end-log');
+      const [timeLOG] = performance.getEntriesByName('log-full');
+
+      let totalFiles = 0;
+      let totalLines = 0;
+      let totalSize = 0;
+
+      console.log('CSV:\n');
+      for (let i = 0; i < csv.length; i++) {
+        console.log(`Number ${i + 1}:`);
+        for (const [key, value] of Object.entries(csv[i])) {
+          totalFiles++;
+          totalLines += csv[i].lines;
+          totalSize += csv[i].sizeBytes;
+          console.log(`   ${key}: ${value}`);
+        }
+      }
+      console.log('Log:\n');
+      for (let i = 0; i < log.length; i++) {
+        console.log(`Number ${i + 1}: `);
+        for (const [key, value] of Object.entries(log[i])) {
+          console.log(`   ${key}: ${value}`);
+        }
+      }
+      console.log('---------------------');
+      console.log(
+        `Relatório Final:\n   Total de arquivos: ${totalFiles}\n   Total de Linhas: ${totalLines}\n   Tamanho total: ${totalSize} bytes\n   Time needed: ${timeCSV.duration > timeLOG.duration ? timeCSV.duration.toFixed(4) : timeLOG.duration.toFixed(4)}ms\n   Total de Workers usados: ${csvUsed + logUsed}`,
+      );
     } catch (err) {
       console.error(chalk.red(`Erro: ${err.message}`));
     }
@@ -258,120 +296,7 @@ program
 
 program.parse(process.argv);
 
-// case '7': {
-//   const pages = await rl.question(
-//     'Página? (deixe em branco para página 1.): ',
-//   );
-//   const response = await buscarIssues(
-//     'diego-rng/devtrack',
-//     process.env.GITHUB_TOKEN,
-//     pages === '' ? null : pages,
-//   );
-//   console.log(await response);
-//   rl.prompt();
-// }
-// case '8': {
-//   const id = await rl.question('ID da Tarefa: ');
-//   const response = await git.getBranch();
-//   const tarefa = { branch: response };
-//   await db.atualizarTask(id, tarefa);
-//   rl.prompt();
-// }
-
-// const firstSelect = await select({
-//   message: 'What would you like to do?',
-//   choices: [
-//     {
-//       name: 'Add',
-//       value: 'add',
-//       description: 'Adiciona uma nova tarefa'
-//     },
-//     {
-//       name: 'List',
-//       value: 'list',
-//       description: 'Lista todas as tarefas'
-//     },
-//     {
-//       name: 'Update',
-//       value: 'update',
-//       description: 'Atualiza a tarefa especificada'
-//     },
-//     {
-//       name: 'Remove',
-//       value: 'remove',
-//       description: 'Remove a tarefa especificada'
-//     },
-//     {
-//       name: 'Export',
-//       value: 'export',
-//       description: 'Exporta a base de dados em CSV para o caminho de saída especificado'
-//     }
-//   ]
-// })
-
-// switch (firstSelect) {
-//   case 'add': {
-//     const title = await input({
-//       message: "Título",
-//       validate: v => v.length >= 3 || "Mínimo 3 caracteres"
-//     })
-//     const choice = await checkbox({
-//       message: "Selecione as entradas que deseja adicionar",
-//       choices: [
-//         {name: 'Prioridade', value: '-p'},
-//         {name: 'Tags', value: '-t'},
-//         {name: 'Projeto', value: '-P'},
-//         {name: 'Descrição', value: '-D'}
-//       ]
-//     })
-//     let final = `add`
-//     if (choice.includes('-p')) {
-//       const prio = await select({
-//         message: 'Prioridade',
-//         choices: [
-//           {name: "Alta", value: 'alta'},
-//           {name: 'Média', value: 'media'},
-//           {name: 'Baixa', value: 'baixa'}
-//         ]
-//       })
-//       final = `${final} -p ${prio}`
-//     }
-//     if (choice.includes('-t')) {
-//       const tagsBase = await input({
-//         message: "Tags (separe com ',' sem espaços)"
-//       })
-//       const tagsSeparated = tagsBase.split(',')
-//       final = `${final} -t ${tagsSeparated}`
-//     }
-//     if (choice.includes('-P')) {
-//       const proj = await input({
-//         message: "Projeto"
-//       })
-//       final = `${final} -P ${proj}`
-//     }
-//     if (choice.includes('-D')) {
-//       const desc = await input({
-//         message: "Descrição"
-//       })
-//       final = `${final} -D ${desc}`
-//     }
-//     final = `${final} ${title}`
-
-//     program.parse(final)
-//   }
-//   case 'list': {
-
-//   }
-//   case 'update': {
-
-//   }
-//   case 'remove': {
-
-//   }
-//   case 'export': {
-
-//   }
-// }
+// #region parseJSON
 
 async function parseJSON(raw) {
   try {
@@ -385,6 +310,8 @@ async function parseJSON(raw) {
     throw new SyntaxError(`Invalid JSON in ${raw}: ${err.message}`);
   }
 }
+
+// #region addPrompt
 
 async function addPrompt(line) {
   const title = await rl.question('Título (Obrigatório): ');
@@ -415,6 +342,8 @@ async function addPrompt(line) {
   return;
 }
 
+// #region updateSTatus
+
 async function updateStatus(id, newStatus) {
   const updatePrompted = {
     status: newStatus,
@@ -430,6 +359,8 @@ if (!process.stdout.isTTY) {
   console.log('Process not running in a TTY context. Exiting...');
   process.exit(0);
 }
+
+// #region newPrompt
 
 async function newPrompt() {
   const res = await fs.readFile(DB_PATH, 'utf-8');
@@ -555,10 +486,12 @@ async function newPrompt() {
   }
 }
 
+// #region processInParallel
+
 async function processInParallel(file = undefined, type = undefined) {
   const maxWorkers = os.cpus().length;
   const results = [];
-  let workersUsed = 0
+  let workersUsed = 0;
 
   if (file != undefined) {
     const promises = executeWorker(file);
@@ -573,22 +506,26 @@ async function processInParallel(file = undefined, type = undefined) {
       (a) => a.isDirectory() === false && a.name.includes(type),
     );
     let filesDone = 0;
-    for (let i = 0; i < filtered.length; i+= maxWorkers) {
-      workersUsed++
+    for (let i = 0; i < filtered.length; i += maxWorkers) {
+      workersUsed++;
       const batch = filtered.slice(i, i + maxWorkers);
       const result = batch.map((a) => {
         const filePath = path.join(a.parentPath ?? a.path, a.name);
         return executeWorker(filePath).then((res) => {
           filesDone++;
-          console.log(`Processando ${filesDone}/${filtered.length} arquivos...`);
+          console.log(
+            `Processando ${filesDone}/${filtered.length} arquivos...`,
+          );
           return res;
         });
       });
       results.push(...(await Promise.all(result)));
     }
   } else throw new Error('Missing a required entry');
-  return {results, workersUsed};
+  return { results, workersUsed };
 }
+
+// #region executeWorker
 
 function executeWorker(data) {
   return new Promise((resolve, reject) => {
@@ -616,9 +553,3 @@ process.on('SIGINT', () => {
   console.log('\nProcesso interrompido.\nEncerrando...');
   process.exit(0);
 });
-
-// rl.on('SIGINT', () => {
-//   console.log('\nEncerrando...');
-//   rl.close();
-//   process.exit(0);
-// });
