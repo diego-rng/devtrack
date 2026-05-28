@@ -217,9 +217,16 @@ program
   .description('Analiza os arquivos .log e .csv da pasta.')
   .action(async () => {
     try {
-      performance.mark('start-analysis')
-      const {csv, csvUsed} = await processInParallel(undefined, 'csv');
-      const {log, logUsed} = await processInParallel(undefined, 'log');
+      performance.mark('start-csv')
+      const {results: csv, workersUsed: csvUsed} = await processInParallel(undefined, 'csv');
+      performance.mark('end-csv')
+      performance.measure('csv-full', 'start-csv', 'end-csv');
+      const [timeCSV] = performance.getEntriesByName('csv-full')
+      performance.mark('start-log')
+      const {results: log, workersUsed: logUsed} = await processInParallel(undefined, 'log');
+      performance.mark('end-log')
+      performance.measure('log-full', 'start-log', 'end-log')
+      const [timeLOG] = performance.getEntriesByName('log-full')
       let totalFiles = 0
       let totalLines = 0
       let totalSize = 0
@@ -228,7 +235,7 @@ program
       for (let i = 0; i < csv.length; i++) {
         console.log(`Number ${i+1}:`)
         for (const [key, value] of Object.entries(csv[i])) {
-          totalfiles++
+          totalFiles++
           totalLines += csv[i].lines
           totalSize += csv[i].sizeBytes
           console.log(`   ${key}: ${value}`)
@@ -241,8 +248,8 @@ program
           console.log(`   ${key}: ${value}`)
         }
       }
-      performance.mark('end-analysis')
-
+      console.log('---------------------')
+      console.log(`Relatório Final:\n   Total de arquivos: ${totalFiles}\n   Total de Linhas: ${totalLines}\n   Tamanho total: ${totalSize} bytes\n   Time needed: ${timeCSV.duration > timeLOG.duration ? timeCSV.duration.toFixed(4) : timeLOG.duration.toFixed(4)}ms\n   Total de Workers usados: ${csvUsed + logUsed}`)
 
     } catch (err) {
       console.error(chalk.red(`Erro: ${err.message}`));
@@ -580,8 +587,7 @@ async function processInParallel(file = undefined, type = undefined) {
       results.push(...(await Promise.all(result)));
     }
   } else throw new Error('Missing a required entry');
-  console.log(` results ${JSON.stringify(results[0])} \n worker ${workersUsed}`)
-  return results, workersUsed;
+  return {results, workersUsed};
 }
 
 function executeWorker(data) {
