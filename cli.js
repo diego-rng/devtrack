@@ -20,7 +20,7 @@ import { buscarIssues } from './src/services/github.js';
 import * as git from './src/services/git.js';
 import * as db from './src/storage/db.js';
 import * as imp from './src/services/export.js';
-import { serveCall } from './src/server/index.js';
+import { ac, serveCall } from './src/server/index.js';
 console.log('DevTrack v1.0');
 console.log('Node:', process.version);
 console.log('Plataforma:', process.platform);
@@ -29,6 +29,12 @@ const plugins = await fs.readdir('./plugins', 'utf-8');
 
 if (plugins.length >= 1) {
   for (const p of plugins) {
+    try {
+      const mod = await import('./plugins/' + p);
+      registerPlugin(mod.default);
+    } catch (err) {
+      console.warn(`[Plugin] ${p}: ${err.message}`);
+    }
   }
 }
 
@@ -549,7 +555,16 @@ function executeWorker(data) {
   });
 }
 
+// #region registerPlugin
+
+function registerPlugin(mod) {
+  if (mod.comandos.length === 0) return;
+
+  mod.comandos.forEach((register) => register(program));
+}
+
 process.on('SIGINT', () => {
   console.log('\nProcesso interrompido.\nEncerrando...');
+  ac.abort();
   process.exit(0);
 });

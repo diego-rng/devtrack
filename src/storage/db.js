@@ -11,13 +11,20 @@ export const DB_PATH = path.join(
   path.normalize('../../data/devtrack.json'),
 );
 
+let cache = {}
+
 // #region lerDB
 export async function lerDB() {
+  if (cache.timestamp && (Date.now() - cache.timestamp) < 500) return cache.data
   if (!existsSync(DB_PATH)) {
     await writeFile(
       DB_PATH,
-      '{ "version": "1.0", "projects": [], "tasks": [], "log": [] }',
+      '{ "version": "1.0", "projects": [], "plugins": [], "tasks": [], "log": [] }',
     );
+  }
+  cache = {
+    data: await readFile(DB_PATH, 'utf-8'),
+    timestamp: Date.now()
   }
   return JSON.parse(await readFile(DB_PATH, 'utf-8'));
 }
@@ -209,4 +216,8 @@ export async function fazerBackup() {
   } catch (err) {
     console.error(err);
   }
+}
+
+export function invCache() {
+  cache.timestamp = 0
 }

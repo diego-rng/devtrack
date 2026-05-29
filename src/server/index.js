@@ -1,7 +1,11 @@
 import http from 'http';
+import fs from 'fs'
+
+
 import {
   adicionarTask,
   atualizarTask,
+  invCache,
   lerDB,
   listarTasks,
   removerTask,
@@ -193,10 +197,18 @@ const server = http.createServer(async (req, res) => {
 
 export async function serveCall(port = 3000) {
   try {
-    server.listen(port, '127.0.0.1', () =>
-      console.log(`Server started on port ${port}`),
-    );
+    server.listen(port, '127.0.0.1', () => {
+      console.log(`Server started on port ${port}`);
+      fs.watch('./data/devtrack.json',{signal: ac.signal } , (eventType, filename) => {
+        if (eventType.change) {
+          invCache()
+        }
+      })
+    });
   } catch (err) {
-    throw err
+    throw err;
   }
 }
+
+
+export const ac = new AbortController()
