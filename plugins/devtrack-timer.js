@@ -8,40 +8,50 @@ export default {
   comandos: [
     (program) =>
       program
-        .command('timer start')
-        .description('Salva a data e horário do início da tarefa especificada')
+        .command('timer')
+        .description(
+          'Salva a data e horário do início da tarefa especificada ou Calcula o tempo gasto na tarefa',
+        )
+        .argument('<opt>', 'start|stop')
         .argument('<id>')
-        .action(async (id) => {
-          const content = await JSON.parse(await fs.readFile(DB_PATH, 'utf-8'));
-          if (!content.tasks.some((task) => task.id === id)) {
-            throw new Error('No task matches the ID provided');
-          }
-          const identifier = content.tasks.findIndex((cont) => cont.id === id);
-          content.tasks[identifier].startTime = new Date();
+        .action(async (opt, id) => {
+          switch (opt) {
+            case 'start': {
+              const content = await JSON.parse(
+                await fs.readFile(DB_PATH, 'utf-8'),
+              );
+              if (!content.tasks.some((task) => task.id === id)) {
+                throw new Error('No task matches the ID provided');
+              }
+              const identifier = content.tasks.findIndex(
+                (cont) => cont.id === id,
+              );
+              content.tasks[identifier].startTime = new Date();
 
-          await writeFile(DB_PATH, JSON.stringify(content, null, 2));
-        }),
-    (program) =>
-      program
-        .command('timer stop')
-        .description('Calcula o tempo gasto na tarefa')
-        .argument('<id>')
-        .action(async (id) => {
-          const content = await JSON.parse(await fs.readFile(DB_PATH, 'utf-8'));
-          if (!content.tasks.some((task) => task.id === id)) {
-            throw new Error('No task matches the ID provided');
-          }
-          const identifier = content.tasks.findIndex((cont) => cont.id === id);
-          if (!content.tasks[identifier].startTime) {
-            throw new Error('Task timer was never started');
-          }
-          const stopTime = Date.now();
+              await writeFile(DB_PATH, JSON.stringify(content, null, 2));
+            }
+            case 'stop': {
+              const content = await JSON.parse(
+                await fs.readFile(DB_PATH, 'utf-8'),
+              );
+              if (!content.tasks.some((task) => task.id === id)) {
+                throw new Error('No task matches the ID provided');
+              }
+              const identifier = content.tasks.findIndex(
+                (cont) => cont.id === id,
+              );
+              if (!content.tasks[identifier].startTime) {
+                throw new Error('Task timer was never started');
+              }
+              const stopTime = Date.now();
 
-          content.tasks[identifier].timeSpent = (
-            stopTime - Date.parse(content.tasks[identifier].startTime)
-          ).toUTCString();
+              content.tasks[identifier].timeSpent = (
+                stopTime - Date.parse(content.tasks[identifier].startTime)
+              ).toUTCString();
 
-          await writeFile(DB_PATH, JSON.stringify(content, null, 2));
+              await writeFile(DB_PATH, JSON.stringify(content, null, 2));
+            }
+          }
         }),
   ],
 };

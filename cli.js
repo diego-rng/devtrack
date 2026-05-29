@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 // cli.js - Entry point do DevTrack
 import path from 'path';
+import { readdir } from 'fs'
 import fs from 'node:fs/promises';
 import { parse } from 'node:path';
 import readline from 'node:readline/promises';
@@ -25,23 +26,13 @@ console.log('DevTrack v1.0');
 console.log('Node:', process.version);
 console.log('Plataforma:', process.platform);
 
-const plugins = await fs.readdir('./plugins', 'utf-8');
-
-if (plugins.length >= 1) {
-  for (const p of plugins) {
-    try {
-      const mod = await import('./plugins/' + p);
-      registerPlugin(mod.default);
-    } catch (err) {
-      console.warn(`[Plugin] ${p}: ${err.message}`);
-    }
-  }
-}
-
 const program = new Command()
   .name('devtrack')
   .description('CLI para gerenciamento de projetos')
   .version('1.0.0');
+
+pluginCall()
+
 
 const DB_PATH = path.normalize('./data/devtrack.json');
 
@@ -555,6 +546,32 @@ function executeWorker(data) {
   });
 }
 
+// #region pluginCall
+
+async function pluginCall() {
+  try {
+    const plugins = await fs.readdir('./plugins', 'utf-8', err => {
+      if (err) {
+        console.log(err.message)
+        throw err
+      }
+    });
+  
+    if (plugins.length >= 1) {
+      for (const p of plugins) {
+        try {
+          const mod = await import('./plugins/' + p);
+          registerPlugin(mod.default);
+        } catch (err) {
+          console.warn(`[Plugin] ${p}: ${err.message}`);
+        }
+      }
+    }
+  } catch (err) {
+    console.error
+  }
+}
+
 // #region registerPlugin
 
 function registerPlugin(mod) {
@@ -562,6 +579,7 @@ function registerPlugin(mod) {
 
   mod.comandos.forEach((register) => register(program));
 }
+
 
 process.on('SIGINT', () => {
   console.log('\nProcesso interrompido.\nEncerrando...');
