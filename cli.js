@@ -1,6 +1,13 @@
 #!/usr/bin/env node
 // cli.js - Entry point do DevTrack
+import { readEnv } from './src/utils/config.js';
+import { buscarIssues } from './src/services/github.js';
+import * as git from './src/services/git.js';
+import * as db from './src/storage/db.js';
+import * as imp from './src/services/export.js';
+import { ac, serveCall } from './src/server/index.js';
 import path from 'path';
+
 import { readdir } from 'fs'
 import fs from 'node:fs/promises';
 import { parse } from 'node:path';
@@ -16,22 +23,16 @@ import { promisify } from 'util';
 import { Worker, isMainThread, workerData, parentPort } from 'worker_threads';
 import os from 'os';
 import { performance, PerformanceObserver } from 'perf_hooks';
-
-import { buscarIssues } from './src/services/github.js';
-import * as git from './src/services/git.js';
-import * as db from './src/storage/db.js';
-import * as imp from './src/services/export.js';
-import { ac, serveCall } from './src/server/index.js';
 console.log('DevTrack v1.0');
 console.log('Node:', process.version);
 console.log('Plataforma:', process.platform);
+
+const config = readEnv()
 
 const program = new Command()
   .name('devtrack')
   .description('CLI para gerenciamento de projetos')
   .version('1.0.0');
-
-
 
 const DB_PATH = path.normalize('./data/devtrack.json');
 
@@ -182,6 +183,10 @@ program
   .command('github')
   .description('Lista todas as issues ativas no repositório do DevTrack.')
   .action(async () => {
+    if (config.githubToken === 'Não definido') {
+      console.warn("Comando desabilitado, Token do Github não foi definido.")
+      process.exit(0);
+    }
     const spinner = ora('Sincronizando com GitHub...').start();
     try {
       const full = await buscarIssues(
@@ -222,7 +227,7 @@ program
 
 program
   .command('serve')
-  .argument('[porta]', 'Porta para abrir o servidor')
+  .argument('[porta]', 'Porta para abrir o servidor', process.env.PORT)
   .action(async (port) => {
     try {
       await serveCall(port);
@@ -289,6 +294,16 @@ program
       console.error(chalk.red(`Erro: ${err.message}`));
     }
   });
+
+// #region config command
+
+program
+  .command('config <--list>')
+  .description('Exibe as configurações atuais do devtrack')
+  .action(() => {
+    console.log(JSON.stringify(config))
+  })
+
 async function main() {
   await pluginCall()
   program.parse(process.argv);

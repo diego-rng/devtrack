@@ -11,7 +11,10 @@ export const DB_PATH = path.join(
   path.normalize('../../data/devtrack.json'),
 );
 
-let cache = {}
+let cache = {
+  timestamp: 0,
+  data: {}
+}
 
 // #region lerDB
 export async function lerDB() {
@@ -23,10 +26,10 @@ export async function lerDB() {
     );
   }
   cache = {
-    data: await readFile(DB_PATH, 'utf-8'),
+    data: await JSON.parse(await readFile(DB_PATH, 'utf-8')),
     timestamp: Date.now()
   }
-  return JSON.parse(await readFile(DB_PATH, 'utf-8'));
+  return cache.data;
 }
 
 // #region salvarDB
@@ -220,4 +223,5 @@ export async function fazerBackup() {
 
 export function invCache() {
   cache.timestamp = 0
+  process.env.DEBUG?.includes("devtrack") && console.debug("Cache invalidado")
 }
