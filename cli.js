@@ -31,7 +31,6 @@ const program = new Command()
   .description('CLI para gerenciamento de projetos')
   .version('1.0.0');
 
-pluginCall()
 
 
 const DB_PATH = path.normalize('./data/devtrack.json');
@@ -290,8 +289,15 @@ program
       console.error(chalk.red(`Erro: ${err.message}`));
     }
   });
+async function main() {
+  await pluginCall()
+  program.parse(process.argv);
+}
 
-program.parse(process.argv);
+main().catch((err) => {
+  console.error(chalk.red(err.message));
+  process.exit(1)
+})
 
 // #region parseJSON
 

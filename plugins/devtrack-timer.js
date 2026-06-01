@@ -27,8 +27,10 @@ export default {
                 (cont) => cont.id === id,
               );
               content.tasks[identifier].startTime = new Date();
+              content.tasks[identifier].atualizadaEm = new Date();
 
-              await writeFile(DB_PATH, JSON.stringify(content, null, 2));
+              await fs.writeFile(DB_PATH, JSON.stringify(content, null, 2));
+              break; 
             }
             case 'stop': {
               const content = await JSON.parse(
@@ -45,13 +47,32 @@ export default {
               }
               const stopTime = Date.now();
 
-              content.tasks[identifier].timeSpent = (
-                stopTime - Date.parse(content.tasks[identifier].startTime)
-              ).toUTCString();
+              const timeMs = stopTime - Date.parse(content.tasks[identifier].startTime);
 
-              await writeFile(DB_PATH, JSON.stringify(content, null, 2));
+              content.tasks[identifier].timeSpent = formatDuration(timeMs)
+              content.tasks[identifier].atualizadaEm = new Date();
+
+              await fs.writeFile(DB_PATH, JSON.stringify(content, null, 2));
+              break;
             }
           }
         }),
   ],
 };
+
+
+function formatDuration(ms) {
+  const totalSeconds = Math.floor(ms / 1000);
+  const days    = Math.floor(totalSeconds / 86400);
+  const hours   = Math.floor((totalSeconds % 86400) / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+
+  const parts = [];
+  if (days)    parts.push(`${days}d`);
+  if (hours)   parts.push(`${hours}h`);
+  if (minutes) parts.push(`${minutes}m`);
+  if (seconds || parts.length === 0) parts.push(`${seconds}s`);
+
+  return parts.join(' ');
+}
