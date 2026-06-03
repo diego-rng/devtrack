@@ -4,8 +4,12 @@ import { v4 as uuid } from 'uuid';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
+import { readEnv } from '../utils/config.js';  
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+const env = readEnv()
 export const DB_PATH = path.join(
   __dirname,
   path.normalize('../../data/devtrack.json'),
@@ -221,7 +225,9 @@ export async function fazerBackup() {
   }
 }
 
+// #region invCache
+
 export function invCache() {
   cache.timestamp = 0
-  process.env.DEBUG?.includes("devtrack") && console.debug("Cache invalidado")
+  env.debug?.includes("devtrack") && console.debug("Cache invalidado")
 }

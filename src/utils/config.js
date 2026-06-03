@@ -14,7 +14,7 @@ export function readEnv() {
         porta: obj.PORT ? obj.PORT : '3000',
         githubToken: obj.GITHUB_TOKEN ? '*********************************************************************************************' : 'Não definido', 
         dataDir: './data/',
-        debug: obj.DEBUG ? true : false,
+        debug: obj.DEBUG ? obj.DEBUG : false,
         maxWorkers: os.cpus().length,
         webhookURL: null
     }

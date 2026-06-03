@@ -1,6 +1,6 @@
+import { watch } from 'fs/promises'
 import http from 'http';
 import fs from 'fs'
-
 
 import {
   adicionarTask,
@@ -197,18 +197,18 @@ const server = http.createServer(async (req, res) => {
 
 export async function serveCall(port = 3000) {
   try {
-    server.listen(port, '127.0.0.1', () => {
+    server.listen(port, '127.0.0.1', async () => {
       console.log(`Server started on port ${port}`);
-      fs.watch('./data/devtrack.json',{signal: ac.signal } , (eventType, filename) => {
-        if (eventType.change) {
-          invCache()
-        }
-      })
+      const watcher = watch('./data/devtrack.json',{signal: ac.signal })
+      for await (const event of watcher) 
+        invCache()
     });
   } catch (err) {
+    if (err.name === 'AbortError') return
     throw err;
   }
 }
 
 
 export const ac = new AbortController()
+const { signal } = ac;
