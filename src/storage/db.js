@@ -4,6 +4,7 @@ import { v4 as uuid } from 'uuid';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
+import * as hist from '../services/history.js'
 import { readEnv } from '../utils/config.js';  
 
 const __filename = fileURLToPath(import.meta.url);
@@ -55,7 +56,7 @@ export async function adicionarTask(task) {
     console.log('ERROR: Invalid status');
     return;
   }
-
+  
   if (
     task.prioridade &&
     !['alta', 'media', 'baixa'].includes(task.prioridade)
@@ -63,7 +64,7 @@ export async function adicionarTask(task) {
     console.log('ERROR: Invalid priority');
     return;
   }
-
+  
   if (!task.status) {
     task.status = 'pendente';
   }
@@ -79,7 +80,8 @@ export async function adicionarTask(task) {
   }
   task.criadaEm = new Date();
   task.atualizadaEm = task.criadaEm;
-
+  
+  await hist.register('add', JSON.stringify(content))
   await writeFile(DB_PATH, JSON.stringify(content, null, 2))
   return task;
 }
@@ -87,13 +89,14 @@ export async function adicionarTask(task) {
 // #region atualizarTask
 export async function atualizarTask(id, campos) {
   const content = JSON.parse(await readFile(DB_PATH, 'utf-8'));
+  hist.register('update', JSON.stringify(content))
   try {
     if (!content.tasks.some((task) => task.id === id)) {
       throw new Error('No task matches the ID provided.');
     }
-  
+    
     const identifier = content.tasks.findIndex((cont) => cont.id === id);
-  
+    
     if (campos.titulo != undefined) {
       content.tasks[identifier].titulo = campos.titulo;
     }
@@ -133,6 +136,7 @@ export async function atualizarTask(id, campos) {
     }
   
     content.tasks[identifier].atualizadaEm = new Date();
+
   
     await writeFile(DB_PATH, JSON.stringify(content, null, 2))
     return content
@@ -146,7 +150,7 @@ export async function atualizarTask(id, campos) {
 // #region removerTask
 export async function removerTask(id) {
   const content = JSON.parse(await readFile(DB_PATH, 'utf-8'));
-
+  hist.register('remove', JSON.stringify(content))
   if (content.tasks.some((task) => task.id === id)) {
     const result = content.tasks.filter((task) => task.id != id);
     content.tasks = result

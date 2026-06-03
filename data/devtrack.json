@@ -559,6 +559,26 @@
       "tags": [],
       "criadaEm": "2026-05-21T19:40:44.758Z",
       "atualizadaEm": "2026-05-21T19:40:44.758Z"
+    },
+    {
+      "titulo": "afasdfdasf",
+      "prioridade": "media",
+      "tags": [],
+      "projeto": "sdfsdf",
+      "id": "2194f45a-dc8d-4110-9463-47086ce997c6",
+      "status": "pendente",
+      "criadaEm": "2026-06-03T19:24:58.173Z",
+      "atualizadaEm": "2026-06-03T19:24:58.173Z"
+    },
+    {
+      "titulo": "afasdfdasf",
+      "prioridade": "media",
+      "tags": [],
+      "projeto": "sdfsdf",
+      "id": "e5cf8490-e707-42ec-ae64-ee6c5a8e35f5",
+      "status": "pendente",
+      "criadaEm": "2026-06-03T19:45:19.496Z",
+      "atualizadaEm": "2026-06-03T19:45:19.496Z"
     }
   ],
   "log": [

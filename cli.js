@@ -6,9 +6,10 @@ import * as git from './src/services/git.js';
 import * as db from './src/storage/db.js';
 import * as imp from './src/services/export.js';
 import { ac, serveCall } from './src/server/index.js';
-import path from 'path';
+import * as hist from './src/services/history.js';
 
-import { readdir } from 'fs'
+import path from 'path';
+import { readdir } from 'fs';
 import fs from 'node:fs/promises';
 import { parse } from 'node:path';
 import readline from 'node:readline/promises';
@@ -27,7 +28,7 @@ console.log('DevTrack v1.0');
 console.log('Node:', process.version);
 console.log('Plataforma:', process.platform);
 
-const config = readEnv()
+const config = readEnv();
 
 const program = new Command()
   .name('devtrack')
@@ -184,7 +185,7 @@ program
   .description('Lista todas as issues ativas no repositório do DevTrack.')
   .action(async () => {
     if (config.githubToken === 'Não definido') {
-      console.warn("Comando desabilitado, Token do Github não foi definido.")
+      console.warn('Comando desabilitado, Token do Github não foi definido.');
       process.exit(0);
     }
     const spinner = ora('Sincronizando com GitHub...').start();
@@ -301,18 +302,44 @@ program
   .command('config <--list>')
   .description('Exibe as configurações atuais do devtrack')
   .action(() => {
-    console.log(JSON.stringify(config))
-  })
+    console.log(JSON.stringify(config));
+  });
+
+// #region undo command
+
+program
+  .command('undo')
+  .description('Desfaz a última mudança')
+  .action(async () => {
+  if (hist.undoStack.isEmpty()) {
+    console.log('Nada para desfazer');
+    process.exit(0);
+  }
+  await hist.undo().then(console.log('Alteração desfeita com sucesso!'));
+  });
+
+// #region redo command
+
+program
+  .command('redo')
+  .description('Refaz a última coisa desfeita')
+  .action(async () => {
+    if (hist.redoStack.isEmpty()) {
+      console.log('Nada para refazer');
+      process.exit(0)
+    }
+    await hist.redo().then(console.log('Alteração refeita com sucesso!'));
+  });
 
 async function main() {
-  await pluginCall()
+  await pluginCall();
   program.parse(process.argv);
 }
 
 main().catch((err) => {
   console.error(chalk.red(err.message));
-  process.exit(1)
-})
+  process.exit(1);
+});
 
 // #region parseJSON
 
@@ -571,13 +598,13 @@ function executeWorker(data) {
 
 async function pluginCall() {
   try {
-    const plugins = await fs.readdir('./plugins', 'utf-8', err => {
+    const plugins = await fs.readdir('./plugins', 'utf-8', (err) => {
       if (err) {
-        console.log(err.message)
-        throw err
+        console.log(err.message);
+        throw err;
       }
     });
-  
+
     if (plugins.length >= 1) {
       for (const p of plugins) {
         try {
@@ -589,7 +616,7 @@ async function pluginCall() {
       }
     }
   } catch (err) {
-    console.error
+    console.error;
   }
 }
 
@@ -600,7 +627,6 @@ function registerPlugin(mod) {
 
   mod.comandos.forEach((register) => register(program));
 }
-
 
 process.on('SIGINT', () => {
   console.log('\nProcesso interrompido.\nEncerrando...');
