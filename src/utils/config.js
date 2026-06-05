@@ -16,7 +16,7 @@ export function readEnv() {
         dataDir: './data/',
         debug: obj.DEBUG ? obj.DEBUG : false,
         maxWorkers: os.cpus().length,
-        webhookURL: null
+        webhookURL: obj.WEBHOOK_URL
     }
     return config
 }
