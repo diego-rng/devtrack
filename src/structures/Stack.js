@@ -5,7 +5,7 @@ export default class Stack {
   push(item) {
     this.#items.push(item);
     if (this.#items.length >= 51) {
-      const temp = this.#items.toArray().slice(1);
+      const temp = this.toArray().slice(1);
       this.#items = temp;
     }
   }
@@ -15,19 +15,19 @@ export default class Stack {
   }
 
   peek() {
-    return this.#items[this.items.length - 1];
+    return this.#items[this.#items.length - 1];
   }
 
   isEmpty() {
     return this.#items.length === 0;
   }
 
-  size() {
+  get size() {
     return this.#items.length;
   }
 
   clear() {
-    this.#items === [];
+    this.#items = [];
   }
 
   toArray() {
