@@ -1,7 +1,7 @@
 export default class Queue {
-  #store = Object;
-  #head = Number
-  #tail = Number
+  #store = {};
+  #head = 0
+  #tail = 0
   constructor() {
     this.#store = {}; 
     this.#head = 0;
