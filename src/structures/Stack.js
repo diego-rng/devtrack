@@ -27,7 +27,7 @@ export default class Stack {
   }
 
   clear() {
-    this.#items === [];
+    this.#items = [];
   }
 
   toArray() {

@@ -1,29 +1,32 @@
 #!/usr/bin/env node
 // cli.js - Entry point do DevTrack
-import { readEnv } from './src/utils/config.js';
 import { buscarIssues } from './src/services/github.js';
+import { ac, serveCall } from './src/server/index.js';
+import * as queue from './src/services/notifier.js';
+import * as hist from './src/services/history.js';
+import Queue from './src/structures/Queue.js';
+import { readEnv } from './src/utils/config.js';
+import * as imp from './src/services/export.js';
 import * as git from './src/services/git.js';
 import * as db from './src/storage/db.js';
-import * as imp from './src/services/export.js';
-import { ac, serveCall } from './src/server/index.js';
-import * as hist from './src/services/history.js';
 
-import path from 'path';
-import { readdir } from 'fs';
-import fs from 'node:fs/promises';
-import { parse } from 'node:path';
+import { Worker, isMainThread, workerData, parentPort } from 'worker_threads';
+import { select, input, checkbox, Separator } from '@inquirer/prompts';
+import { performance, PerformanceObserver } from 'perf_hooks';
 import readline from 'node:readline/promises';
 import { stdin, stdout } from 'node:process';
-import { Command } from 'commander';
-import chalk from 'chalk';
-import ora from 'ora';
-import inquirer from 'inquirer';
-import { select, input, checkbox, Separator } from '@inquirer/prompts';
 import * as child from 'child_process';
+import { Command } from 'commander';
+import fs from 'node:fs/promises';
+import { parse } from 'node:path';
 import { promisify } from 'util';
-import { Worker, isMainThread, workerData, parentPort } from 'worker_threads';
+import inquirer from 'inquirer';
+import { readdir } from 'fs';
+import chalk from 'chalk';
+import path from 'path';
+import ora from 'ora';
 import os from 'os';
-import { performance, PerformanceObserver } from 'perf_hooks';
+
 console.log('DevTrack v1.0');
 console.log('Node:', process.version);
 console.log('Plataforma:', process.platform);
@@ -57,9 +60,15 @@ program
     };
     await db.adicionarTask(full);
     console.log(chalk.green('✔  Tarefa criada com sucesso!'));
+    queue.enqueue({
+      type: 'add',
+      payload: full,
+      attempts: 0,
+      createdAt: new Date()
+    })
     process.exit(0);
   });
-//#endregion add command
+
 // #region list command
 
 program
@@ -329,6 +338,24 @@ program
       process.exit(0)
     }
     await hist.redo().then(console.log('Alteração refeita com sucesso!'));
+  });
+
+// #region queue command
+ 
+ program
+  .command('queue')
+  .description('Gerencia a fila de notificações de webhooks')
+  .option('--stats', 'Exibe estatísticas da fila')
+  .action((opts) => {
+    if (!opts.stats) {
+      console.log('Use --stats para exibir as estatísticas da fila.');
+      return;
+    }
+    const stats = queue.stats();;
+    console.log(chalk.bold('\n Stats:'));
+    console.log(`Pendentes:  ${chalk.cyan(stats.pending.size)}`);
+    console.log(`Dead-Letter:  ${chalk.red(stats.deadLetter.size)}`);
+    console.log(`Processados: ${chalk.green(stats.processed)}`);
   });
 
 async function main() {

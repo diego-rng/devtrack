@@ -579,6 +579,16 @@
       "status": "pendente",
       "criadaEm": "2026-06-03T19:45:19.496Z",
       "atualizadaEm": "2026-06-03T19:45:19.496Z"
+    },
+    {
+      "titulo": "aasdasdas",
+      "prioridade": "media",
+      "tags": [],
+      "projeto": "aaaa",
+      "id": "f0a015e2-702f-47a2-ab83-c2055f92e78c",
+      "status": "pendente",
+      "criadaEm": "2026-08-21T18:26:18.903Z",
+      "atualizadaEm": "2026-08-21T18:26:18.903Z"
     }
   ],
   "log": [
