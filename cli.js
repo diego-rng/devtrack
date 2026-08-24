@@ -64,8 +64,9 @@ program
       type: 'add',
       payload: full,
       attempts: 0,
-      createdAt: new Date()
-    })
+      createdAt: new Date(),
+    });
+    await queue.processar();
     process.exit(0);
   });
 
@@ -130,6 +131,13 @@ program
       };
 
       await db.atualizarTask(id, full);
+      queue.enqueue({
+        type: 'update',
+        payload: full,
+        attempts: 0,
+        createdAt: new Date(),
+      });
+      await queue.processar();
       process.exit(0);
     } catch (err) {
       console.error(chalk.red.bold(err));
@@ -144,6 +152,13 @@ program
   .action(async (id) => {
     try {
       await db.removerTask(id);
+      queue.enqueue({
+        type: 'delete',
+        payload: id,
+        attempts: 0,
+        createdAt: new Date(),
+      });
+      await queue.processar();
       process.exit(0);
     } catch (err) {
       console.error(chalk.red.bold(err));
@@ -320,15 +335,17 @@ program
   .command('undo')
   .description('Desfaz a última mudança')
   .action(async () => {
-  try {
-    await hist.undo().then(() => console.log('Alteração desfeita com sucesso!'));
-  } catch(err) {
-    if (err.message === "File doesn't exist") {
-      console.log('Nada para desfazer')
-      process.exit(0)
+    try {
+      await hist
+        .undo()
+        .then(() => console.log('Alteração desfeita com sucesso!'));
+    } catch (err) {
+      if (err.message === "File doesn't exist") {
+        console.log('Nada para desfazer');
+        process.exit(0);
+      }
+      console.error(err);
     }
-    console.error(err)
-  }
   });
 
 // #region redo command
@@ -338,28 +355,40 @@ program
   .description('Refaz a última coisa desfeita')
   .action(async () => {
     try {
-      await hist.redo().then(() => console.log('Alteração refeita com sucesso!'));
+      await hist
+        .redo()
+        .then(() => console.log('Alteração refeita com sucesso!'));
     } catch (err) {
       if (err.message === "File doesn't exist") {
-      console.log('Nada para refazer');
-      process.exit(0)
+        console.log('Nada para refazer');
+        process.exit(0);
+      }
+      console.error(err);
     }
-    console.error(err)
-    }  
-    });
+  });
 
 // #region queue command
- 
- program
+
+program
   .command('queue')
   .description('Gerencia a fila de notificações de webhooks')
   .option('--stats', 'Exibe estatísticas da fila')
-  .action((opts) => {
+  .action(async (opts) => {
     if (!opts.stats) {
       console.log('Use --stats para exibir as estatísticas da fila.');
+      const res = await fetch(config.webhookURL, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json', }
+      }).catch((err) => {
+        throw new Error(err)
+      });
+      console.log(res)
+      for (const obj in res.body) {
+        console.log(`[x] ${obj.payload.id}`)
+      }
       return;
     }
-    const stats = queue.stats();;
+    const stats = queue.stats();
     console.log(chalk.bold('\n Stats:'));
     console.log(`Pendentes:  ${chalk.cyan(stats.pending.size)}`);
     console.log(`Dead-Letter:  ${chalk.red(stats.deadLetter.size)}`);
