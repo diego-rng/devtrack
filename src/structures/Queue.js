@@ -8,28 +8,28 @@ export default class Queue {
     this.#tail = 0; 
   }
   enqueue(item) {
-    this.#store[this.#head] = item;
-    this.#head++;
+    this.#store[this.#tail] = item;
+    this.#tail++;
   }
   dequeue() {
     if (this.isEmpty()) {
       return undefined;
     }
-    const result = this.#store[this.#tail];
-    delete this.#store[this.#tail];
-    this.#tail++;
+    const result = this.#store[this.#head];
+    delete this.#store[this.#head];
+    this.#head++;
     return result
   }
   peek() {
     if (this.isEmpty()) {
       return undefined
     }
-    return this.#store[this.#tail]
+    return this.#store[this.#head]
   }
   isEmpty() {
-    return this.size() === 0
+    return this.#head === this.#tail;
   }
   get size() {
-    return this.#head - this.#tail
+    return this.#tail - this.#head
   }
 }
