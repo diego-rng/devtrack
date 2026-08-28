@@ -4,13 +4,16 @@ import { v4 as uuid } from 'uuid';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-import * as hist from '../services/history.js'
-import { readEnv } from '../utils/config.js';  
+import * as hist from '../services/history.js';
+import { readEnv } from '../utils/config.js';
+import Trie from '../structures/Trie.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const env = readEnv()
+export const db = new Trie();
+
+const env = readEnv();
 export const DB_PATH = path.join(
   __dirname,
   path.normalize('../../data/devtrack.json'),
@@ -18,12 +21,12 @@ export const DB_PATH = path.join(
 
 let cache = {
   timestamp: 0,
-  data: {}
-}
+  data: {},
+};
 
 // #region lerDB
 export async function lerDB() {
-  if (cache.timestamp && (Date.now() - cache.timestamp) < 500) return cache.data
+  if (cache.timestamp && Date.now() - cache.timestamp < 500) return cache.data;
   if (!existsSync(DB_PATH)) {
     await writeFile(
       DB_PATH,
@@ -32,10 +35,19 @@ export async function lerDB() {
   }
   cache = {
     data: await JSON.parse(await readFile(DB_PATH, 'utf-8')),
-    timestamp: Date.now()
-  }
+    timestamp: Date.now(),
+  };
   return cache.data;
 }
+
+async function onStart() {
+  const DB = JSON.stringify(await lerDB());
+  for (const item in DB) {
+    if (!item.titulo) continue;
+    db.insert(item.titulo);
+  }
+}
+await onStart();
 
 // #region salvarDB
 export async function salvarDB(dados) {
@@ -47,8 +59,8 @@ export async function salvarDB(dados) {
 export async function adicionarTask(task) {
   const newID = uuid();
   const content = JSON.parse(await readFile(DB_PATH, 'utf-8'));
-  await hist.register('add', JSON.stringify(content))
-  
+  await hist.register('add', JSON.stringify(content));
+
   task.id = newID;
   if (
     task.status &&
@@ -57,7 +69,7 @@ export async function adicionarTask(task) {
     console.log('ERROR: Invalid status');
     return;
   }
-  
+
   if (
     task.prioridade &&
     !['alta', 'media', 'baixa'].includes(task.prioridade)
@@ -65,7 +77,7 @@ export async function adicionarTask(task) {
     console.log('ERROR: Invalid priority');
     return;
   }
-  
+
   if (!task.status) {
     task.status = 'pendente';
   }
@@ -81,30 +93,32 @@ export async function adicionarTask(task) {
   }
   task.criadaEm = new Date();
   task.atualizadaEm = task.criadaEm;
-  
-  await writeFile(DB_PATH, JSON.stringify(content, null, 2))
+
+  db.insert(task.titulo, task.id);
+
+  await writeFile(DB_PATH, JSON.stringify(content, null, 2));
   return task;
 }
 
 // #region atualizarTask
 export async function atualizarTask(id, campos) {
   const content = JSON.parse(await readFile(DB_PATH, 'utf-8'));
-  await hist.register('update', JSON.stringify(content))
+  await hist.register('update', JSON.stringify(content));
   try {
     if (!content.tasks.some((task) => task.id === id)) {
       throw new Error('No task matches the ID provided.');
     }
-    
+
     const identifier = content.tasks.findIndex((cont) => cont.id === id);
-    
+
     if (campos.titulo != undefined) {
       content.tasks[identifier].titulo = campos.titulo;
     }
-  
+
     if (campos.descricao != undefined) {
       content.tasks[identifier].descricao = campos.descricao;
     }
-  
+
     if (campos.status != undefined) {
       if (['pendente', 'em_progresso', 'concluida'].includes(campos.status)) {
         content.tasks[identifier].status = campos.status;
@@ -113,7 +127,7 @@ export async function atualizarTask(id, campos) {
         return;
       }
     }
-  
+
     if (campos.prioridade != undefined) {
       if (['alta', 'media', 'baixa'].includes(campos.prioridade)) {
         content.tasks[identifier].prioridade = campos.prioridade;
@@ -122,27 +136,26 @@ export async function atualizarTask(id, campos) {
         return;
       }
     }
-  
+
     if (campos.projeto != undefined) {
       content.tasks[identifier].projeto = campos.projeto;
     }
-  
+
     if (campos.tags != undefined) {
       content.tasks[identifier].tags = campos.tags;
     }
-  
+
     if (campos.branch != undefined) {
       content.tasks[identifier].branch = campos.branch;
     }
-  
+
     content.tasks[identifier].atualizadaEm = new Date();
 
-  
-    await writeFile(DB_PATH, JSON.stringify(content, null, 2))
-    return content
-  } catch(err) {
-    console.error(err)
-    throw err
+    await writeFile(DB_PATH, JSON.stringify(content, null, 2));
+    return content;
+  } catch (err) {
+    console.error(err);
+    throw err;
   }
   return;
 }
@@ -150,13 +163,14 @@ export async function atualizarTask(id, campos) {
 // #region removerTask
 export async function removerTask(id) {
   const content = JSON.parse(await readFile(DB_PATH, 'utf-8'));
-  await hist.register('remove', JSON.stringify(content))
+  await hist.register('remove', JSON.stringify(content));
   if (content.tasks.some((task) => task.id === id)) {
     const result = content.tasks.filter((task) => task.id != id);
-    content.tasks = result
+    content.tasks = result;
     await writeFile(DB_PATH, JSON.stringify(content, null, 2));
-    console.log("Task removed!");
-    return
+    console.log('Task removed!');
+    db.remove(result.titulo);
+    return;
   } else {
     throw new Error("Task doesn't exist.");
   }
@@ -232,6 +246,6 @@ export async function fazerBackup() {
 // #region invCache
 
 export function invCache() {
-  cache.timestamp = 0
-  env.debug?.includes("devtrack") && console.debug("Cache invalidado")
+  cache.timestamp = 0;
+  env.debug?.includes('devtrack') && console.debug('Cache invalidado');
 }

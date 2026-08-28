@@ -4,14 +4,13 @@ import { buscarIssues } from './src/services/github.js';
 import { ac, serveCall } from './src/server/index.js';
 import * as queue from './src/services/notifier.js';
 import * as hist from './src/services/history.js';
-import Queue from './src/structures/Queue.js';
 import { readEnv } from './src/utils/config.js';
 import * as imp from './src/services/export.js';
-import * as git from './src/services/git.js';
+import Queue from './src/structures/Queue.js';
 import * as db from './src/storage/db.js';
 
 import { Worker, isMainThread, workerData, parentPort } from 'worker_threads';
-import { select, input, checkbox, Separator } from '@inquirer/prompts';
+import { select, input, checkbox, Separator, search } from '@inquirer/prompts';
 import { performance, PerformanceObserver } from 'perf_hooks';
 import readline from 'node:readline/promises';
 import { stdin, stdout } from 'node:process';
@@ -378,13 +377,13 @@ program
       console.log('Use --stats para exibir as estatísticas da fila.');
       const res = await fetch(config.webhookURL, {
         method: 'GET',
-        headers: { 'Content-Type': 'application/json', }
+        headers: { 'Content-Type': 'application/json' },
       }).catch((err) => {
-        throw new Error(err)
+        throw new Error(err);
       });
-      console.log(res)
+      console.log(res);
       for (const obj in res.body) {
-        console.log(`[x] ${obj.payload.id}`)
+        console.log(`[x] ${obj.payload.id}`);
       }
       return;
     }
@@ -393,6 +392,45 @@ program
     console.log(`Pendentes:  ${chalk.cyan(stats.pending.size)}`);
     console.log(`Dead-Letter:  ${chalk.red(stats.deadLetter.size)}`);
     console.log(`Processados: ${chalk.green(stats.processed)}`);
+    process.exit(0);
+  });
+
+// #region search command
+
+program
+  .command('search')
+  .description('Pesquisa a base de dados por tarefas')
+  .argument('[prefix]')
+  .action(async (prefix) => {
+    if (prefix) {
+      const res = db.db.findPrefix(prefix);
+      if (!res.size) {
+        console.log(chalk.redBright('Nenhum resultado encontrado'));
+        return;
+      }
+      console.log(chalk.greenBright(`${res.size} resultados encontrados! \n`));
+      for (result in res) {
+        console.log(chalk.cyan(result));
+      }
+      process.exit(0);
+    } else {
+      const res = await search({
+        message: 'Escreva o seu prefixo',
+        source: (input) => {
+          if (!input) {
+            return db.db.findPrefix('');
+          }
+
+          const data = db.db.findPrefix(input);
+
+          return data.map((pkg) => ({
+            name: pkg.titulo,
+            value: pkg.titulo,
+            description: pkg.taskId,
+          }));
+        },
+      });
+    }
   });
 
 async function main() {
