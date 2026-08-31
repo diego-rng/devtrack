@@ -403,6 +403,8 @@ program
   .argument('[prefix]')
   .action(async (prefix) => {
     if (prefix) {
+      await db.onStart()
+      console.log(db.db)
       const res = db.db.findPrefix(prefix);
       if (!res.size) {
         console.log(chalk.redBright('Nenhum resultado encontrado'));
@@ -414,6 +416,8 @@ program
       }
       process.exit(0);
     } else {
+      await db.onStart()
+      console.log(db.db)
       const res = await search({
         message: 'Escreva o seu prefixo',
         source: (input) => {

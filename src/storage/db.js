@@ -40,14 +40,13 @@ export async function lerDB() {
   return cache.data;
 }
 
-async function onStart() {
+export async function onStart() {
   const DB = JSON.stringify(await lerDB());
   for (const item in DB) {
     if (!item.titulo) continue;
-    db.insert(item.titulo);
+    db.insert(item.titulo, item.id);
   }
 }
-await onStart();
 
 // #region salvarDB
 export async function salvarDB(dados) {
