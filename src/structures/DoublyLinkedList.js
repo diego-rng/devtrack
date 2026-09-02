@@ -7,7 +7,7 @@ class Node {
 }
 
 export default class DoublyLinkedList{
-  constructor(value, prev, next) {
+  constructor() {
     this.count = 0;
     this.head = undefined;
     this.tail = undefined;
