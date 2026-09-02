@@ -47,7 +47,8 @@
     "uuid": "^14.0.0"
   },
   "devDependencies": {
-    "eslint": "^10.4.0"
+    "eslint": "^10.4.0",
+    "eslint-plugin-unused-imports": "^4.4.1"
   },
   "peerDependencies": {
     "node": ">=18"
