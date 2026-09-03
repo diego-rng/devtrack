@@ -66,7 +66,6 @@ registerSearch(program);
 
 registerTimeline(program);
 
-
 async function main() {
   await pluginCall();
   program.parse(process.argv);

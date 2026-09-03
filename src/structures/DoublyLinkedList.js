@@ -1,90 +1,103 @@
 class Node {
-  constructor (value, prev = null, next = null) {
+  constructor(value, prev = null, next = null) {
     this.value = value;
     this.prev = prev;
     this.next = next;
   }
 }
 
-export default class DoublyLinkedList{
+export default class DoublyLinkedList {
   constructor() {
     this.count = 0;
     this.head = undefined;
     this.tail = undefined;
   }
-  pushFront(v){
+  pushFront(v) {
     const node = new Node(v, this.head);
     let current;
-    if (this.head == null) {
-      this.head = node
-    } else {
+    if (this.head !== undefined) {
       current = this.head;
-      while (current.next != null) {
-        current = current.next;
-      }
-      current.next = node;
-    }
-    this.count++
-  }
-  pushBack(v){
-    const node = new Node(v, null, this.tail);
-    let current;
-    if (this.tail == null) {
-      this.tail = node
-    } else {
-      current = this.tail;
-      while (current.prev != null) {
-        current = current.prev;
-      }
       current.prev = node;
     }
-    this.count++
+    this.head = node;
+    if (!this.tail) this.tail = this.head;
+    if (!this.head.next && this.tail) this.head.next = this.tail;
+    this.count++;
+  }
+  pushBack(v) {
+    const node = new Node(v, null, this.tail);
+    let current;
+    if (this.tail !== undefined) {
+      current = this.tail;
+      current.next = node;
+    }
+    this.tail = node;
+    if (!this.head) this.head = this.tail;
+    if (!this.tail.prev && this.head) this.tail.prev = this.head;
+    this.count++;
   }
   popFront() {
     if (this.head == undefined) return undefined;
     let current = this.head;
     this.head = current.next;
-    current.next = null
-    this.count--
-    return current
+    current.next = null;
+    this.count--;
+    return current.value;
   }
   popBack() {
     if (this.tail == undefined) return undefined;
     let current = this.tail;
     this.tail = current.prev;
-    current.prev = null
-    this.count--
-    return current
+    current.prev = null;
+    this.count--;
+    return current.value;
   }
   search(pred) {
     let current = this.head;
-    while (current.value !== pred) {
-      current = current.next
-      if (current == this.tail) return undefined
+    for (let i = 0; i < this.size; i++) {
+      if (pred(current.value)) return current.value;
+      if (current == this.tail) return null;
+      current = current.next;
     }
-    return current
+    return null;
   }
   get size() {
     return this.count;
   }
-  toArray(){
-    const res = []
-    if (this.size() == 0) return res
-    let latest = this.head
-    while (latest !== this.tail) {
-      res.push(latest)
-      latest = latest.next
+  toArray() {
+    const res = [];
+    if (this.size == 0) return res;
+    let latest = this.head;
+    for (let i = 0; i < this.size; i++) {
+      if (latest == undefined) break;
+      res.push(latest.value);
+      latest = latest.next;
     }
-    return res
+    return res;
   }
-  toReverseArray(){
-    const res = []
-    if (this.size() == 0) return res
-    let latest = this.tail
-    while (latest !== this.tail) {
-      res.push(latest)
-      latest = latest.prev
+  toReverseArray() {
+    const res = [];
+    if (this.size == 0) return res;
+    let latest = this.head;
+    for (let i = 0; i < this.size; i++) {
+      if (latest == undefined) break;
+      res.push(latest.value);
+      latest = latest.next;
     }
-    return res
+    return res.toReversed();
+  }
+  paginate(page, perPage = 10) {
+    const res = [];
+    if (this.size == 0) return res;
+    let latest = this.head;
+    const temp = [];
+    for (let i = 0; i < this.size; i++) {
+      temp.push(latest.value);
+      latest = latest.next;
+    }
+    for (let i = 0; i < perPage; i++) {
+      res.push(temp[(perPage * page) + i]);
+    }
+    return res;
   }
 }

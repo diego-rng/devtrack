@@ -14,7 +14,7 @@
   "scripts": {
     "start": "node cli.js",
     "dev": "node --watch cli.js",
-    "test": "node --test cli.js",
+    "test": "node test.js",
     "lint": "eslint"
   },
   "homepage": "https://github.com/diego-rng/devtrack#readme",
