@@ -2,8 +2,10 @@ import { test, describe, before, after, beforeEach } from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdtempSync, rmSync } from 'node:fs';
 import path from 'node:path';
-import os from 'node:os';
+import os, { type } from 'node:os';
 import DoublyLinkedList from '../src/structures/DoublyLinkedList.js';
+import createTimeline from '../src/services/timeline.js';
+import { timeline } from '../src/storage/db.js';
 
 // ---------------------------------------------------------------------------
 describe('Tarefa 17 — DoublyLinkedList: operações de inserção e remoção', () => {
@@ -141,71 +143,64 @@ describe('Tarefa 17 — DoublyLinkedList: paginar() percorre a lista sem convert
 // ---------------------------------------------------------------------------
 describe('Tarefa 17 — timeline.js: eventos por projeto', () => {
   test('adicionarEvento adiciona evento ao projeto', async () => {
-    const { createTimeline } = await import('../src/services/timeline.js');
-    const t = createTimeline();
-    t.adicionarEvento('proj-a', { tipo: 'add', taskId: '1', descricao: 'Criada', timestamp: Date.now() });
-    const eventos = t.obterEventos('proj-a');
+    const t = new createTimeline();
+    t.addEvent('proj-a', { type: 'add', taskId: '1', description: 'Criada', timestamp: Date.now() });
+    const eventos = t.getEvents('proj-a');
     assert.equal(eventos.length, 1);
   });
 
   test('eventos são ordenados do mais recente ao mais antigo (pushFront)', async () => {
-    const { createTimeline } = await import('../src/services/timeline.js');
-    const t = createTimeline();
-    t.adicionarEvento('proj', { tipo: 'add', taskId: '1', descricao: 'Primeiro', timestamp: 1 });
-    t.adicionarEvento('proj', { tipo: 'update', taskId: '1', descricao: 'Segundo', timestamp: 2 });
-    const eventos = t.obterEventos('proj');
-    assert.equal(eventos[0].descricao, 'Segundo', 'mais recente deve vir primeiro');
-    assert.equal(eventos[1].descricao, 'Primeiro');
+    const t = new createTimeline();
+    t.addEvent('proj', { type: 'add', taskId: '1', description: 'Primeiro', timestamp: 1 });
+    t.addEvent('proj', { type: 'update', taskId: '1', description: 'Segundo', timestamp: 2 });
+    const eventos = t.getEvents('proj');
+    assert.equal(eventos[0].description, 'Segundo', 'mais recente deve vir primeiro');
+    assert.equal(eventos[1].description, 'Primeiro');
   });
 
   test('obterEventos com limite retorna N eventos', async () => {
-    const { createTimeline } = await import('../src/services/timeline.js');
-    const t = createTimeline();
+    const t = new createTimeline();
     for (let i = 0; i < 5; i++) {
-      t.adicionarEvento('proj', { tipo: 'add', taskId: String(i), descricao: `E${i}`, timestamp: i });
+      t.addEvent('proj', { type: 'add', taskId: String(i), description: `E${i}`, timestamp: i });
     }
-    const eventos = t.obterEventos('proj', 3);
+    const eventos = t.getEvents('proj', 3);
     assert.equal(eventos.length, 3);
   });
 
   test('timelines são isoladas por projeto', async () => {
-    const { createTimeline } = await import('../src/services/timeline.js');
-    const t = createTimeline();
-    t.adicionarEvento('proj-a', { tipo: 'add', taskId: '1', descricao: 'A', timestamp: 1 });
-    t.adicionarEvento('proj-b', { tipo: 'add', taskId: '2', descricao: 'B', timestamp: 1 });
-    assert.equal(t.obterEventos('proj-a').length, 1);
-    assert.equal(t.obterEventos('proj-b').length, 1);
-    assert.equal(t.obterEventos('proj-a')[0].descricao, 'A');
+    const t = new createTimeline();
+    t.addEvent('proj-a', { type: 'add', taskId: '1', description: 'A', timestamp: 1 });
+    t.addEvent('proj-b', { type: 'add', taskId: '2', description: 'B', timestamp: 1 });
+    assert.equal(t.getEvents('proj-a').length, 1);
+    assert.equal(t.getEvents('proj-b').length, 1);
+    assert.equal(t.getEvents('proj-a')[0].description, 'A');
   });
 
   test('obterEventos de projeto inexistente retorna []', async () => {
-    const { createTimeline } = await import('../src/services/timeline.js');
-    const t = createTimeline();
-    assert.deepEqual(t.obterEventos('nao-existe'), []);
+    const t = new createTimeline();
+    assert.deepEqual(t.getEvents('nao-existe'), []);
   });
 });
 
 // ---------------------------------------------------------------------------
 describe('Tarefa 17 — timeline.js: obterEventosPaginados()', () => {
   test('pagina eventos corretamente (mais recente primeiro)', async () => {
-    const { createTimeline } = await import('../src/services/timeline.js');
-    const t = createTimeline();
+    const t = new createTimeline();
     for (let i = 0; i < 12; i++) {
-      t.adicionarEvento('proj', { tipo: 'add', taskId: String(i), descricao: `E${i}`, timestamp: i });
+      t.addEvent('proj', { type: 'add', taskId: String(i), description: `E${i}`, timestamp: i });
     }
-    const pagina1 = t.obterEventosPaginados('proj', 1, 5);
-    const pagina2 = t.obterEventosPaginados('proj', 2, 5);
-    const pagina3 = t.obterEventosPaginados('proj', 3, 5);
+    const pagina1 = t.getPaginatedEvents('proj', 1, 5);
+    const pagina2 = t.getPaginatedEvents('proj', 2, 5);
+    const pagina3 = t.getPaginatedEvents('proj', 3, 5);
     assert.equal(pagina1.length, 5);
     assert.equal(pagina2.length, 5);
     assert.equal(pagina3.length, 2);
-    assert.equal(pagina1[0].descricao, 'E11', 'página 1 começa pelo evento mais recente (pushFront)');
+    assert.equal(pagina1[0].description, 'E11', 'página 1 começa pelo evento mais recente (pushFront)');
   });
 
   test('obterEventosPaginados de projeto inexistente retorna []', async () => {
-    const { createTimeline } = await import('../src/services/timeline.js');
-    const t = createTimeline();
-    assert.deepEqual(t.obterEventosPaginados('nao-existe', 1, 5), []);
+    const t = new createTimeline();
+    assert.deepEqual(t.getPaginatedEvents('nao-existe', 1, 5), []);
   });
 });
 
@@ -225,27 +220,25 @@ describe('Tarefa 17 — db.js: eventos de timeline gerados automaticamente', () 
   });
 
   beforeEach(async () => {
-    const { salvarDB, invalidarCache } = await import('../src/storage/db.js');
-    invalidarCache();
+    const { salvarDB, invCache } = await import('../src/storage/db.js');
+    invCache();
     await salvarDB({ version: '1.0', projects: [], tasks: [], log: [] });
   });
 
   test('adicionarTask registra evento tipo "add" na timeline do projeto', async () => {
     const { adicionarTask } = await import('../src/storage/db.js');
-    const { timeline } = await import('../src/services/timeline.js');
     const projeto = `proj-add-${Date.now()}`;
 
     const task = await adicionarTask({ titulo: 'Fix login', projeto });
     const eventos = timeline.obterEventos(projeto);
 
     assert.equal(eventos.length, 1);
-    assert.equal(eventos[0].tipo, 'add');
+    assert.equal(eventos[0].type, 'add');
     assert.equal(eventos[0].taskId, task.id);
   });
 
   test('atualizarTask (sem mudar status) registra evento tipo "update"', async () => {
     const { adicionarTask, atualizarTask } = await import('../src/storage/db.js');
-    const { timeline } = await import('../src/services/timeline.js');
     const projeto = `proj-update-${Date.now()}`;
 
     const task = await adicionarTask({ titulo: 'Refatorar', projeto });
@@ -253,25 +246,23 @@ describe('Tarefa 17 — db.js: eventos de timeline gerados automaticamente', () 
     const eventos = timeline.obterEventos(projeto);
 
     assert.equal(eventos.length, 2, 'add + update');
-    assert.equal(eventos[0].tipo, 'update', 'evento mais recente é o update');
+    assert.equal(eventos[0].type, 'update', 'evento mais recente é o update');
   });
 
   test('atualizarTask com status "concluida" registra evento tipo "done"', async () => {
     const { adicionarTask, atualizarTask } = await import('../src/storage/db.js');
-    const { timeline } = await import('../src/services/timeline.js');
     const projeto = `proj-done-${Date.now()}`;
 
     const task = await adicionarTask({ titulo: 'Deploy', projeto });
     await atualizarTask(task.id, { status: 'concluida' });
     const eventos = timeline.obterEventos(projeto);
 
-    assert.equal(eventos[0].tipo, 'done');
-    assert.ok(eventos[0].descricao.includes('conclu'), 'descrição deve mencionar a conclusão');
+    assert.equal(eventos[0].type, 'done');
+    assert.ok(eventos[0].description.includes('conclu'), 'descrição deve mencionar a conclusão');
   });
 
   test('eventos de projetos diferentes permanecem isolados', async () => {
     const { adicionarTask } = await import('../src/storage/db.js');
-    const { timeline } = await import('../src/services/timeline.js');
     const projetoA = `proj-iso-a-${Date.now()}`;
     const projetoB = `proj-iso-b-${Date.now()}`;
 

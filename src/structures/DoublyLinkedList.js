@@ -90,13 +90,30 @@ export default class DoublyLinkedList {
     const res = [];
     if (this.size == 0) return res;
     let latest = this.head;
-    const temp = [];
-    for (let i = 0; i < this.size; i++) {
-      temp.push(latest.value);
-      latest = latest.next;
-    }
-    for (let i = 0; i < perPage; i++) {
-      res.push(temp[(perPage * page) + i]);
+    const pagesPassed = () => {
+      if (page <= 1) return 0;
+      return (page - 1) * perPage;
+    };
+    if (pagesPassed() > this.size) return res;
+    let limit = page * perPage;
+    if (limit > this.size) limit = this.size;
+    if (page <= 0) limit = perPage;
+    let untilPage = limit;
+    if (limit < 1) {
+      res.push(latest.value);
+    } else {
+      for (let i = 0; i < limit; i++) {
+        if (i < pagesPassed()) {
+          latest = latest.next;
+          untilPage--;
+          continue;
+        }
+        if (untilPage === 0) break;
+        res.push(latest.value);
+        if (!latest.next || latest.next == undefined) break;
+        latest = latest.next;
+        untilPage--;
+      }
     }
     return res;
   }

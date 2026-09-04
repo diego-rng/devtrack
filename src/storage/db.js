@@ -7,11 +7,13 @@ import { fileURLToPath } from 'url';
 import * as hist from '../services/history.js';
 import { readEnv } from '../utils/config.js';
 import Trie from '../structures/Trie.js';
+import createTimeline from '../services/timeline.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 export const db = new Trie();
+export const timeline = new createTimeline();
 
 const env = readEnv();
 export const DB_PATH = path.join(
@@ -94,6 +96,7 @@ export async function adicionarTask(task) {
   task.atualizadaEm = task.criadaEm;
 
   db.insert(task.titulo, task.id);
+  timeline.addEvent(task.projeto, {type: 'add', taskId: task.id, timestamp: task.criadaEm})
 
   await writeFile(DB_PATH, JSON.stringify(content, null, 2));
   return task;
@@ -148,7 +151,10 @@ export async function atualizarTask(id, campos) {
       content.tasks[identifier].branch = campos.branch;
     }
 
+    
     content.tasks[identifier].atualizadaEm = new Date();
+    
+    timeline.addEvent(task.projeto, {type: campos.status === 'concluida' ? 'done' : 'update', taskId: task.id, timestamp: task.atualizadaEm})
 
     await writeFile(DB_PATH, JSON.stringify(content, null, 2));
     return content;
